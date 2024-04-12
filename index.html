@@ -1,0 +1,2534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<meta name="author" content="Máster en Tecnonlogías y Aplicaciones en Ingeniería Informática. Universidad de Almería">
+<title>Cassandra - Bases de datos a gran escala</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+</head>
+<body class="book toc2 toc-right">
+<div id="header">
+<h1>Cassandra - Bases de datos a gran escala</h1>
+<div class="details">
+<span id="author" class="author">Máster en Tecnonlogías y Aplicaciones en Ingeniería Informática. Universidad de Almería</span><br>
+<span id="revdate">Manuel Torres &lt;mtorres@ual.es&gt;</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Tabla de contenidos</div>
+<ul class="sectlevel1">
+<li><a href="#_resumen">Resumen</a></li>
+<li><a href="#_introducción">1. Introducción</a></li>
+<li><a href="#_una_base_de_datos_orientada_a_filas_wide_column_store">2. Una base de datos orientada a filas (Wide column store)</a></li>
+<li><a href="#_descentralización_en_cassandra_arquitectura_peer_to_peer">3. Descentralización en Cassandra: Arquitectura Peer-to-Peer</a>
+<ul class="sectlevel2">
+<li><a href="#_características_de_la_descentralización">3.1. Características de la descentralización</a></li>
+<li><a href="#_ejemplo_de_configuración_de_nodos">3.2. Ejemplo de configuración de nodos</a></li>
+</ul>
+</li>
+<li><a href="#_arquitectura_de_cassandra_nodos_anillos_y_clústeres">4. Arquitectura de Cassandra: Nodos, anillos y clústeres</a>
+<ul class="sectlevel2">
+<li><a href="#_componentes_de_la_arquitectura">4.1. Componentes de la arquitectura</a></li>
+<li><a href="#_replicación_de_datos">4.2. Replicación de datos</a></li>
+</ul>
+</li>
+<li><a href="#_consistencia_dventual_en_cassandra_factor_de_replicación_y_nivel_de_consistencia">5. Consistencia dventual en Cassandra: Factor de replicación y Nivel de consistencia</a>
+<ul class="sectlevel2">
+<li><a href="#_consideraciones_sobre_la_consistencia_eventual">5.1. Consideraciones sobre la consistencia eventual</a></li>
+<li><a href="#_nivel_de_consistencia">5.2. Nivel de consistencia</a></li>
+<li><a href="#_teorema_de_cap_y_bases_de_datos_distribuidas">5.3. Teorema de CAP y Bases de datos distribuidas</a></li>
+</ul>
+</li>
+<li><a href="#_modelado_de_datos_en_cassandra">6. Modelado de datos en Cassandra</a>
+<ul class="sectlevel2">
+<li><a href="#_clave_compuesta_en_cassandra">6.1. Clave compuesta en Cassandra</a></li>
+<li><a href="#_columnas_estáticas_en_cassandra">6.2. Columnas estáticas en Cassandra</a></li>
+<li><a href="#_componentes_de_cassandra_de_abajo_hacia_arriba">6.3. Componentes de Cassandra: De Abajo hacia Arriba</a></li>
+<li><a href="#_naturaleza_permanente_de_las_claves_primarias_en_cassandra">6.4. Naturaleza permanente de las claves primarias en Cassandra</a></li>
+<li><a href="#_timestamps_y_ttl_en_cassandra">6.5. Timestamps y TTL en Cassandra</a></li>
+<li><a href="#_keyspaces">6.6. Keyspaces</a></li>
+<li><a href="#_modelado_basado_en_consultas_en_cassandra">6.7. Modelado basado en consultas en Cassandra</a></li>
+</ul>
+</li>
+<li><a href="#_consideraciones_de_diseño_en_cassandra">7. Consideraciones de diseño en Cassandra</a></li>
+<li><a href="#_instalación_y_configuración_de_cassandra">8. Instalación y configuración de Cassandra</a>
+<ul class="sectlevel2">
+<li><a href="#_instalación_nativa_de_cassandra_en_linux">8.1. Instalación Nativa de Cassandra en Linux</a></li>
+<li><a href="#_instalación_de_cassandra_con_docker">8.2. Instalación de Cassandra con Docker</a></li>
+</ul>
+</li>
+<li><a href="#_cql_lenguaje_de_consulta_de_cassandra">9. CQL: Lenguaje de consulta de Cassandra</a>
+<ul class="sectlevel2">
+<li><a href="#_características_de_cql">9.1. Características de CQL</a></li>
+<li><a href="#_consultas_básicas_en_cql">9.2. Consultas básicas en CQL</a></li>
+<li><a href="#_operaciones_sobre_keyspaces">9.3. Operaciones sobre keyspaces</a></li>
+<li><a href="#_tablas_en_cql">9.4. Tablas en CQL</a></li>
+<li><a href="#_colecciones_y_udt_en_cql">9.5. Colecciones y UDT en CQL</a></li>
+<li><a href="#_indexación_en_cql">9.6. Indexación en CQL</a></li>
+<li><a href="#_funciones_de_agregación_en_cql">9.7. Funciones de agregación en CQL</a></li>
+</ul>
+</li>
+<li><a href="#_ejemplo_de_base_de_datos_para_una_aplicación_de_música_en_streaming">10. Ejemplo de base de datos para una aplicación de música en streaming</a>
+<ul class="sectlevel2">
+<li><a href="#_creación_del_keyspace">10.1. Creación del keyspace</a></li>
+<li><a href="#_operaciones_con_la_tabla_de_usuarios">10.2. Operaciones con la tabla de usuarios</a></li>
+<li><a href="#_operaciones_con_la_tabla_de_canciones_escuchadas_por_los_usuarios">10.3. Operaciones con la tabla de canciones escuchadas por los usuarios</a></li>
+<li><a href="#_trazado_de_consultas_en_cassandra">10.4. Trazado de consultas en Cassandra</a></li>
+<li><a href="#_eliminación_de_la_tabla_el_índice_y_el_keyspace">10.5. Eliminación de la tabla, el índice y el keyspace</a></li>
+</ul>
+</li>
+<li><a href="#_creación_de_una_api_rest_en_express_para_interactuar_con_cassandra">11. Creación de una API REST en Express para interactuar con Cassandra</a>
+<ul class="sectlevel2">
+<li><a href="#_creación_del_proyecto_base">11.1. Creación del proyecto base</a></li>
+<li><a href="#_configuración_de_la_conexión_a_cassandra">11.2. Configuración de la conexión a Cassandra</a></li>
+<li><a href="#_creación_de_los_endpoints_de_gestión_de_usuarios">11.3. Creación de los endpoints de gestión de usuarios</a></li>
+<li><a href="#_configuración_de_las_rutas">11.4. Configuración de las rutas</a></li>
+<li><a href="#_creación_de_los_endpoints_de_consulta_de_canciones_reproducidas_recientemente">11.5. Creación de los endpoints de consulta de canciones reproducidas recientemente</a></li>
+</ul>
+</li>
+<li><a href="#_conclusiones">12. Conclusiones</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="images/di.png" alt="di">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resumen">Resumen</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cassandra es una base de datos distribuida y escalable que ofrece alta disponibilidad y tolerancia a fallos. Desarrollada inicialmente por Facebook y donada a la Apache Software Foundation, se ha convertido en una de las bases de datos NoSQL más populares. Con un modelo de datos flexible y una arquitectura descentralizada, Cassandra permite el escalado horizontal y la replicación de datos en múltiples nodos. Su lenguaje de consulta basado en SQL facilita la interacción con la base de datos. En resumen, Cassandra es una solución robusta para aplicaciones que requieren escalabilidad y confiabilidad en entornos distribuidos.</p>
+</div>
+<div class="ulist">
+<div class="title">Objetivos</div>
+<ul>
+<li>
+<p>Conocer las características y ventajas de Cassandra como base de datos distribuida y escalable.</p>
+</li>
+<li>
+<p>Comprender los conceptos de consistencia eventual y replicación de datos en Cassandra.</p>
+</li>
+<li>
+<p>Aprender a diseñar y gestionar clústeres de Cassandra para aplicaciones de alta disponibilidad y tolerancia a fallos.</p>
+</li>
+<li>
+<p>Familiarizarse con el lenguaje de consulta CQL y las mejores prácticas para interactuar con Cassandra.</p>
+</li>
+<li>
+<p>Explorar casos de uso y ejemplos de aplicaciones que se benefician de las capacidades de escalabilidad y tolerancia a fallos de Cassandra.</p>
+</li>
+<li>
+<p>Crear una API REST utilizando Cassandra como base de datos para una aplicación web.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introducción">1. Introducción</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cassandra es una base de datos distribuida y escalable que fue desarrollada inicialmente por Facebook en 2008 y posteriormente donada a la Apache Software Foundation en 2009. Desde entonces, ha experimentado un crecimiento significativo y se ha convertido en una de las bases de datos NoSQL más populares para aplicaciones que requieren escalabilidad y alta disponibilidad. Como características principales destacan:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Modelo de datos:</strong> Cassandra utiliza un modelo de datos orientado a filas con características de almacén de columnas anchas (wide column store), lo que permite una gran flexibilidad en la estructura de los datos. Por ejemplo, puedes tener columnas diferentes para cada fila, lo que es útil para modelos de datos dinámicos como los perfiles de usuario.</p>
+</li>
+<li>
+<p><strong>Distribuida y descentralizada:</strong> Cassandra está diseñada para ser distribuida y descentralizada. Utiliza un modelo de arquitectura peer-to-peer en el que no hay un nodo maestro centralizado. Esto permite una alta disponibilidad y escalabilidad horizontal.</p>
+</li>
+<li>
+<p><strong>Escalable:</strong> Cassandra puede escalar horizontalmente añadiendo más nodos al clúster para manejar aumentos en la carga de trabajo y el tamaño de los datos. Por ejemplo, Netflix utiliza Cassandra para manejar miles de millones de peticiones de transmisión de vídeo al día.</p>
+</li>
+<li>
+<p><strong>Tolerante a fallos:</strong> Gracias a su arquitectura descentralizada y distribuida, Cassandra es tolerante a fallos. Si un nodo falla, el sistema sigue funcionando sin interrupción, ya que los datos están replicados en varios nodos.</p>
+</li>
+<li>
+<p><strong>Consistencia eventual:</strong> Cassandra utiliza un modelo de consistencia eventual, lo que significa que no garantiza la consistencia de los datos en todo momento. En lugar de eso, prioriza la disponibilidad y la tolerancia a fallos. Esto es útil para aplicaciones que pueden aceptar cierto grado de inconsistencia temporal en los datos.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Cabe destacar también las analogías con otros sistemas distribuidos como Amazon Dynamo y Google Bigtable, que han influido en el diseño y la arquitectura de Cassandra, así como su lenguaje de consulta basado en SQL (CQL) que facilita la interacción con la base de datos.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Amazon Dynamo:</strong> El modelo de distribución descentralizada y tolerante a fallos de Cassandra está inspirado en Amazon Dynamo, un servicio de almacenamiento distribuido desarrollado por Amazon Web Services.</p>
+</li>
+<li>
+<p><strong>Google Bigtable:</strong> El modelo de datos de Cassandra se asemeja al modelo de datos de Google Bigtable, que es una base de datos NoSQL diseñada para manejar grandes volúmenes de datos estructurados, como los datos de los motores de búsqueda.</p>
+</li>
+<li>
+<p><strong>Lenguaje de consulta basado en SQL:</strong> Aunque Cassandra utiliza su propio lenguaje de consulta llamado CQL (Cassandra Query Language), está influenciado por SQL y proporciona una sintaxis familiar para interactuar con la base de datos. Por ejemplo, puedes ejecutar consultas como esta para recuperar datos de una tabla:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT * FROM last_played_songs_by_user WHERE song_id = 123e4567-e89b-12d3-a456-426614174001;</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_una_base_de_datos_orientada_a_filas_wide_column_store">2. Una base de datos orientada a filas (Wide column store)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cassandra utiliza un modelo de datos orientado a filas con características de almacén de columnas anchas (wide column store), lo que proporciona una gran flexibilidad y escalabilidad en el almacenamiento y acceso a los datos. A continuación se describen las principales características de este modelo:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Clave de particionado</strong>: La clave de particionado en Cassandra es única para cada fila y se utiliza para distribuir las filas por los nodos del clúster. Por ejemplo, si tenemos una tabla de usuarios y utilizamos el <code>user_id</code> como clave de particionado, Cassandra distribuirá las filas de usuarios en diferentes nodos en función del <code>user_id</code>.</p>
+</li>
+<li>
+<p><strong>Modelo disperso</strong>: Cassandra utiliza un modelo disperso en el que las filas pueden tener columnas diferentes. Esto significa que no se guarda espacio para columnas no utilizadas en cada fila, lo que reduce el almacenamiento y mejora la eficiencia. Por ejemplo, si tenemos una tabla de usuarios y solo algunas filas tienen información adicional como la dirección, solo se almacenará la dirección para esas filas específicas.</p>
+</li>
+<li>
+<p><strong>Clave de ordenación</strong>: Los valores de fila en Cassandra se almacenan según una clave de ordenación para mejorar el rendimiento de las consultas. Esto permite recuperar eficientemente filas en función de un rango de valores de clave de ordenación. Por ejemplo, si tenemos una tabla de tweets y utilizamos el <code>timestamp</code> como clave de ordenación, podemos recuperar todos los tweets de un usuario en un rango de tiempo específico de manera eficiente.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podría definir una tabla en Cassandra utilizando estos conceptos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE IF NOT EXISTS user_data (
+   user_id UUID,
+   username TEXT,
+   email TEXT,
+   address TEXT,
+   PRIMARY KEY (user_id)
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En este ejemplo, <code>user_id</code> se utiliza como la clave de particionado para distribuir las filas de usuarios por los nodos del clúster. La tabla puede tener columnas adicionales como <code>username</code>, <code>email</code> y <code>address</code>, pero no se necesita espacio de almacenamiento para estas columnas si no se utilizan en todas las filas.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_descentralización_en_cassandra_arquitectura_peer_to_peer">3. Descentralización en Cassandra: Arquitectura Peer-to-Peer</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cassandra se basa en una arquitectura descentralizada que elimina la necesidad de definir nodos principales y secundarios. En su lugar, todos los nodos del clúster son idénticos, lo que proporciona una simetría de servidores y una mayor disponibilidad del sistema.</p>
+</div>
+<div class="sect2">
+<h3 id="_características_de_la_descentralización">3.1. Características de la descentralización</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Arquitectura Peer-to-Peer:</strong> En Cassandra, todos los nodos del clúster se comunican entre sí de manera directa, sin depender de nodos principales o secundarios. Esto crea un entorno de red distribuida en el que todos los nodos son iguales en términos de autoridad y responsabilidad.</p>
+</li>
+<li>
+<p><strong>Protocolo Gossip:</strong> Cassandra utiliza el protocolo gossip para mantener una lista de nodos disponibles en el clúster. Este protocolo permite que los nodos intercambien información sobre su estado y la topología del clúster de manera eficiente y descentralizada.</p>
+</li>
+<li>
+<p><strong>Facilidad de configuración:</strong> Todos los nodos en un clúster de Cassandra se configuran de manera idéntica, lo que simplifica la administración y la configuración del sistema. No es necesario configurar nodos principales o secundarios, lo que reduce la complejidad y el riesgo de fallos de configuración.</p>
+</li>
+<li>
+<p><strong>Alta disponibilidad:</strong> Con todos los nodos configurados de manera idéntica, no hay un único punto de fallo en el sistema. Esto significa que no hay fallos de servicio debido a la caída de nodos individuales, ya que otros nodos pueden asumir la carga de trabajo de manera automática.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ejemplo_de_configuración_de_nodos">3.2. Ejemplo de configuración de nodos</h3>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podrían configurar los nodos en un clúster de Cassandra:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell"># Configuración del nodo 1
+listen_address: 192.168.1.1
+rpc_address: 0.0.0.0
+seed_provider:
+    - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+      parameters:
+          - seeds: "192.168.1.1,192.168.1.2,192.168.1.3"
+
+# Configuración del nodo 2
+listen_address: 192.168.1.2
+rpc_address: 0.0.0.0
+seed_provider:
+    - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+      parameters:
+          - seeds: "192.168.1.1,192.168.1.2,192.168.1.3"
+
+# Configuración del nodo 3
+listen_address: 192.168.1.3
+rpc_address: 0.0.0.0
+seed_provider:
+    - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+      parameters:
+          - seeds: "192.168.1.1,192.168.1.2,192.168.1.3"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En este ejemplo, todos los nodos se configuran con direcciones IP y proveedores de semillas idénticos, lo que garantiza una configuración uniforme y una comunicación eficiente entre los nodos del clúster.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_arquitectura_de_cassandra_nodos_anillos_y_clústeres">4. Arquitectura de Cassandra: Nodos, anillos y clústeres</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>En Cassandra, la arquitectura se basa en la distribución de datos en nodos, que están organizados en anillos dentro de data centers, y varios data centers forman un clúster.</p>
+</div>
+<div class="sect2">
+<h3 id="_componentes_de_la_arquitectura">4.1. Componentes de la arquitectura</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Nodo:</strong> En Cassandra, un nodo es el lugar donde se almacenan los datos. Cada nodo puede ser responsable de almacenar una parte del conjunto de datos completo. Los nodos se distribuyen en varios data centers para mejorar la disponibilidad y la tolerancia a fallos.</p>
+</li>
+<li>
+<p><strong>Data Center (Anillo):</strong> Un data center en Cassandra es un conjunto de nodos que están físicamente ubicados juntos. Los nodos dentro del mismo data center se comunican entre sí de manera eficiente, lo que reduce la latencia y mejora el rendimiento.</p>
+</li>
+<li>
+<p><strong>Cluster:</strong> Un clúster en Cassandra es un conjunto de data centers que trabajan juntos para proporcionar una solución de almacenamiento de datos distribuida y altamente disponible. Los clústeres pueden estar compuestos por uno o más data centers.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_replicación_de_datos">4.2. Replicación de datos</h3>
+<div class="paragraph">
+<p>La replicación de datos en Cassandra se controla mediante el factor de replicación y la estrategia de replicación.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Factor de replicación:</strong> El factor de replicación es el número de copias deseadas de cada conjunto de datos. Esto permite que los datos estén replicados en varios nodos para proporcionar redundancia y tolerancia a fallos. Por ejemplo, si tenemos un factor de replicación de 3, cada conjunto de datos se replicará en tres nodos diferentes.</p>
+</li>
+<li>
+<p><strong>Estrategia de replicación:</strong> La estrategia de replicación determina dónde colocar las réplicas de los datos en el clúster. Cassandra proporciona varias estrategias de replicación, entre las que se incluyen:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>SimpleStrategy (Desarrollo):</strong> Esta estrategia coloca las réplicas en nodos consecutivos alrededor del anillo. Es útil para entornos de desarrollo y pruebas donde se desea una configuración simple y rápida.</p>
+</li>
+<li>
+<p><strong>NetworkTopologyStrategy (Producción):</strong> Esta estrategia permite definir factores de replicación diferentes para cada data center en el clúster. Es útil para entornos de producción donde se desea una mayor flexibilidad y control sobre la distribución de réplicas en diferentes ubicaciones geográficas.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podría configurar la estrategia de replicación en Cassandra:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">CREATE KEYSPACE IF NOT EXISTS my_keyspace
+WITH replication = {
+  'class': 'NetworkTopologyStrategy',
+  'datacenter1': 3,
+  'datacenter2': 2
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En este ejemplo, estamos creando un keyspace llamado <code>my_keyspace</code> con la estrategia de replicación <code>NetworkTopologyStrategy</code>. Hemos especificado que queremos 3 réplicas en <code>datacenter1</code> y 2 réplicas en <code>datacenter2</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Los data centers no se crean de forma explícita en Cassandra. Realmente, son el resultado de la configuración de cada nodo del cluster, que especifica el data center al que pertenece. Por ejemplo, si configuramos tres nodos con el nombre de data center <code>dc1</code>, Cassandra considerará que esos nodos pertenecen al mismo data center. Por tanto, se ha creado el data center <code>dc1</code> de forma implícita.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_consistencia_dventual_en_cassandra_factor_de_replicación_y_nivel_de_consistencia">5. Consistencia dventual en Cassandra: Factor de replicación y Nivel de consistencia</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>En Cassandra, la consistencia eventual es un modelo de consistencia que prioriza la disponibilidad y la tolerancia a fallos sobre la consistencia estricta en todo momento. Esto significa que las actualizaciones se propagan a todas las réplicas de los datos, pero puede llevar un tiempo hasta que todas las réplicas estén completamente actualizadas y consistentes.</p>
+</div>
+<div class="sect2">
+<h3 id="_consideraciones_sobre_la_consistencia_eventual">5.1. Consideraciones sobre la consistencia eventual</h3>
+<div class="paragraph">
+<p>Al hablar de la consistencia eventual en Cassandra, es importante tener en cuenta los siguientes aspectos:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Factor de replicación:</strong> El factor de replicación en Cassandra es el número de nodos a los que se propagan los datos. Esto permite que los datos estén replicados en varios nodos para proporcionar redundancia y tolerancia a fallos. Por ejemplo, si tenemos un factor de replicación de 3, cada conjunto de datos se replicará en tres nodos diferentes.</p>
+</li>
+<li>
+<p><strong>Actualizaciones asíncronas:</strong> En la consistencia eventual, las actualizaciones se propagan a todas las réplicas de los datos de manera asíncrona. Esto significa que una vez que se realiza una actualización en un nodo, esta se propaga a otras réplicas en segundo plano, pero no se espera una confirmación inmediata de todas las réplicas.</p>
+</li>
+<li>
+<p><strong>Consistencia garantizada:</strong> A pesar de que las actualizaciones se propagan de manera asíncrona, todas las réplicas terminarán siendo consistentes eventualmente. Esto se debe a que las actualizaciones se aplican en el mismo orden en todas las réplicas, lo que garantiza que todas las réplicas eventualmente reflejen el mismo estado de los datos.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_nivel_de_consistencia">5.2. Nivel de consistencia</h3>
+<div class="paragraph">
+<p>En Cassandra, el nivel de consistencia es especificado por cada operación de cliente y controla cuántas réplicas deben dar un ACK en escrituras o devolver datos en lecturas. El nivel de consistencia es un compromiso entre consistencia y rendimiento, y permite a los desarrolladores ajustar el equilibrio según las necesidades de su aplicación.</p>
+</div>
+<div class="paragraph">
+<p>Por ejemplo, un nivel de consistencia de ONE requiere que solo una réplica responda a una operación de escritura o lectura para considerarla exitosa, lo que ofrece un rendimiento más alto pero menor consistencia. Por otro lado, un nivel de consistencia de QUORUM requiere que la mayoría de las réplicas respondan, lo que ofrece una mayor consistencia pero a costa de un rendimiento ligeramente más bajo.</p>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo en Java de cómo se podría especificar el nivel de consistencia en una operación de lectura en Cassandra:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">Statement statement = QueryBuilder.select().all().from("my_keyspace", "my_table").where(QueryBuilder.eq("id", id)).setConsistencyLevel(ConsistencyLevel.QUORUM);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En este ejemplo, estamos realizando una consulta a la tabla <code>my_table</code> en el keyspace <code>my_keyspace</code>, y hemos especificado un nivel de consistencia de QUORUM para asegurar una mayor consistencia en la lectura de datos.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_teorema_de_cap_y_bases_de_datos_distribuidas">5.3. Teorema de CAP y Bases de datos distribuidas</h3>
+<div class="paragraph">
+<p>El Teorema de CAP es fundamental para comprender las limitaciones y compromisos en los sistemas distribuidos, especialmente en bases de datos a gran escala. El Teorema de CAP establece que en un sistema distribuido a gran escala, es imposible garantizar simultáneamente tres características clave:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Consistencia (Consistency):</strong> Significa que todos los clientes leerán el mismo valor, aunque haya escrituras concurrentes en el sistema. En otras palabras, todas las operaciones de lectura reflejarán el valor más reciente de una escritura exitosa.</p>
+</li>
+<li>
+<p><strong>Disponibilidad (Availability):</strong> Indica que todos los clientes podrán leer y escribir datos en el sistema en todo momento, sin importar si algún nodo o componente del sistema está experimentando problemas.</p>
+</li>
+<li>
+<p><strong>Tolerancia a la partición (Partition Tolerance):</strong> Se refiere a la capacidad del sistema para seguir funcionando de manera coherente incluso si hay cortes en la red que impiden la comunicación entre algunos nodos del sistema.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_compromisos_en_bases_de_datos_distribuidas">5.3.1. Compromisos en bases de datos distribuidas</h4>
+<div class="paragraph">
+<p>En el contexto de las bases de datos distribuidas a gran escala, el Teorema de CAP nos obliga a elegir entre dos prestaciones entre las tres mencionadas:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Si priorizamos <strong>Consistencia</strong> y <strong>Disponibilidad</strong>, podemos enfrentarnos a problemas de tolerancia a particiones. En otras palabras, durante una partición de red, el sistema puede optar por ser consistente o disponible, pero no ambos al mismo tiempo.</p>
+</li>
+<li>
+<p>Si priorizamos <strong>Disponibilidad</strong> y <strong>Tolerancia a la partición</strong>, es posible que tengamos que sacrificar la consistencia en ciertas circunstancias. Esto significa que los datos pueden no estar inmediatamente consistentes en todos los nodos durante una partición de red, pero el sistema seguirá respondiendo a las solicitudes de lectura y escritura.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Para ilustrar estos compromisos, consideremos un ejemplo en el contexto de una base de datos distribuida:</p>
+</div>
+<div class="paragraph">
+<p>Supongamos que tenemos una base de datos distribuida que prioriza la <strong>Disponibilidad</strong> y la <strong>Tolerancia a la partición</strong> sobre la <strong>Consistencia</strong>. Durante una partición de red, un cliente podría escribir datos en un nodo y luego intentar leerlos desde otro nodo. Debido a la partición, los nodos pueden no estar inmediatamente sincronizados, lo que podría resultar en lecturas inconsistentes hasta que se resuelva la partición.</p>
+</div>
+<div class="paragraph">
+<p>Por ejemplo, en el contexto de una red social, durante una partición de red, un usuario podría realizar una publicación en su feed de noticias y luego intentar ver esa publicación desde otro dispositivo. Debido a la partición, los servidores que almacenan los datos pueden no estar inmediatamente sincronizados, lo que podría resultar en la publicación no apareciendo de inmediato en el feed del usuario hasta que se resuelva la partición. En este caso, se prioriza la disponibilidad y la tolerancia a la partición para garantizar que los usuarios puedan seguir accediendo y utilizando la plataforma, aunque las actualizaciones puedan no reflejarse instantáneamente en todos los nodos.</p>
+</div>
+<div class="paragraph">
+<p>En el contexto de una plataforma de streaming, durante una partición de red, un usuario podría comenzar a ver un programa en un dispositivo y luego intentar continuar viéndolo en otro dispositivo. Debido a la partición, los servidores de la plataforma pueden no estar inmediatamente sincronizados, lo que podría resultar en la pérdida de progreso o la falta de sincronización en la reproducción entre dispositivos hasta que se resuelva la partición. En este caso, se prioriza la disponibilidad y la tolerancia a la partición para garantizar que los usuarios puedan seguir viendo contenido sin interrupciones, aunque la experiencia de usuario pueda verse afectada temporalmente por la falta de consistencia en los datos entre los servidores.</p>
+</div>
+<div class="paragraph">
+<p>Estos son sólo unos ejemplos de cómo el Teorema de CAP influye en el diseño y el funcionamiento de las bases de datos distribuidas a gran escala. Al comprender estos compromisos, los ingenieros pueden tomar decisiones informadas sobre la arquitectura y la configuración de sus sistemas distribuidos.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_modelado_de_datos_en_cassandra">6. Modelado de datos en Cassandra</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>El modelado de datos en Cassandra es fundamental para diseñar esquemas eficientes que aprovechen las características de escalabilidad y distribución de esta base de datos NoSQL.</p>
+</div>
+<div class="sect2">
+<h3 id="_clave_compuesta_en_cassandra">6.1. Clave compuesta en Cassandra</h3>
+<div class="paragraph">
+<p>En Cassandra, se utiliza una clave compuesta para representar particiones, que son grupos de filas relacionadas que se almacenan juntas en los nodos del clúster. Esta clave compuesta consta de dos partes principales:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Clave de partición:</strong> Determina los nodos en los que se almacenan las filas relacionadas. En otras palabras, es responsable de la distribución de datos en el clúster. Por ejemplo, si tenemos una tabla de usuarios y utilizamos el <code>user_id</code> como clave de partición, las filas de cada usuario se almacenarán juntas en los nodos según su <code>user_id</code>.</p>
+</li>
+<li>
+<p><strong>Columnas de clustering:</strong> Definen una ordenación de las filas dentro de una partición. Esto permite realizar consultas eficientes y ordenadas dentro de una partición. Por ejemplo, si tenemos una tabla de mensajes y utilizamos el <code>timestamp</code> como columna de clustering, los mensajes se ordenarán cronológicamente dentro de cada partición de usuario.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_columnas_estáticas_en_cassandra">6.2. Columnas estáticas en Cassandra</h3>
+<div class="paragraph">
+<p>En Cassandra, las columnas estáticas son aquellas cuyos valores son compartidos (comunes) en todas las filas de una partición. Estas columnas se almacenan solo una vez por partición y son útiles para almacenar metadatos o atributos comunes a todas las filas dentro de una partición. Por ejemplo, si tenemos una tabla de posts en un blog y queremos almacenar el nombre del autor para cada post, podríamos utilizar una columna estática para el nombre del autor, ya que este valor será el mismo para todos los posts dentro de una partición de usuario.</p>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podría diseñar un esquema de tabla en Cassandra utilizando estos conceptos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE IF NOT EXISTS user_posts (
+   user_id UUID,
+   post_id UUID,
+   post_title TEXT,
+   post_content TEXT,
+   author_name TEXT STATIC,
+   created_at TIMESTAMP,
+   PRIMARY KEY (user_id, created_at, post_id)
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En este ejemplo, <code>user_id</code> se utiliza como clave de partición para agrupar los posts de cada usuario juntos en los nodos del clúster. La columna <code>created_at</code> se utiliza como columna de clustering para ordenar los posts cronológicamente dentro de cada partición de usuario. La columna <code>author_name</code> es una columna estática que almacena el nombre del autor, ya que este valor es el mismo para todos los posts de un usuario específico.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_componentes_de_cassandra_de_abajo_hacia_arriba">6.3. Componentes de Cassandra: De Abajo hacia Arriba</h3>
+<div class="paragraph">
+<p>En Cassandra, varios componentes trabajan juntos para proporcionar una base de datos distribuida y altamente disponible. Desde el nivel más bajo hasta el más alto, estos componentes incluyen:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Columna</strong>: En Cassandra, una columna es un par clave-valor que almacena datos. Cada columna tiene un nombre único y un valor asociado. Las columnas se agrupan en filas y se organizan en particiones dentro de las tablas.</p>
+</li>
+<li>
+<p><strong>Fila</strong>: Una fila en Cassandra es un conjunto de columnas referenciadas por una clave primaria. Cada fila tiene una clave primaria única que la identifica dentro de su tabla. Las filas pueden contener un número variable de columnas y se almacenan juntas en particiones en el mismo nodo.</p>
+</li>
+<li>
+<p><strong>Partición</strong>: Una partición en Cassandra es un conjunto de filas relacionadas que se almacenan juntas en el mismo nodo del clúster. Las particiones se definen por su clave de partición, que determina en qué nodo se almacenan los datos. Las particiones permiten una distribución eficiente de los datos y facilitan la escalabilidad y el rendimiento de lectura y escritura.</p>
+</li>
+<li>
+<p><strong>Tabla</strong>: Una tabla en Cassandra es un conjunto de filas organizadas en particiones. Cada tabla tiene un esquema predefinido que define la estructura de las filas y las columnas que puede contener. Las tablas se utilizan para organizar y almacenar datos de manera estructurada en el clúster de Cassandra.</p>
+</li>
+<li>
+<p><strong>Keyspace</strong>: Un keyspace en Cassandra es un conjunto de tablas que comparten las mismas opciones de replicación y se almacenan en los mismos nodos del clúster. Cada keyspace proporciona un espacio de nombres lógico para organizar y gestionar las tablas relacionadas en el clúster.</p>
+</li>
+<li>
+<p><strong>Cluster (Anillo)</strong>: Un cluster en Cassandra es un conjunto de keyspaces distribuidos por varios nodos del clúster. La asignación de datos a los nodos se realiza siguiendo un anillo de particiones, que distribuye las particiones de datos de manera equitativa entre los nodos del clúster. Los clusters en Cassandra proporcionan escalabilidad horizontal y alta disponibilidad al distribuir y replicar datos en múltiples nodos.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podrían interactuar con los componentes de Cassandra desde una aplicación:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Un cliente envía una solicitud de escritura a un keyspace específico en el clúster.</p>
+</li>
+<li>
+<p>El controlador de almacenamiento enruta la solicitud al nodo adecuado en el clúster, basándose en la clave de partición proporcionada.</p>
+</li>
+<li>
+<p>El nodo de Cassandra recibe la solicitud y almacena los datos en la partición correspondiente dentro de la tabla especificada en el keyspace.</p>
+</li>
+<li>
+<p>Una vez completada la escritura, el nodo de Cassandra envía una respuesta al cliente, confirmando la operación.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Este es solo un ejemplo de cómo interactúan los diferentes componentes de Cassandra para proporcionar una base de datos distribuida y altamente disponible. Cada componente desempeña un papel crucial en el funcionamiento del sistema en su conjunto.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_naturaleza_permanente_de_las_claves_primarias_en_cassandra">6.4. Naturaleza permanente de las claves primarias en Cassandra</h3>
+<div class="paragraph">
+<p>En Cassandra, las claves primarias desempeñan un papel fundamental en la distribución y organización de los datos en el clúster. Además, tienen una naturaleza permanente que afecta a cómo se realizan las operaciones de escritura en la base de datos.</p>
+</div>
+<div class="sect3">
+<h4 id="_importancia_de_las_claves_primarias">6.4.1. Importancia de las claves primarias</h4>
+<div class="paragraph">
+<p>Las claves primarias determinan cómo se distribuyen los datos en el disco y cómo se accede a ellos en el clúster. Están compuestas por una clave de partición y, opcionalmente, columnas de clustering, que permiten una distribución eficiente de los datos y facilitan la escalabilidad horizontal.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_naturaleza_permanente_de_las_claves_primarias">6.4.2. Naturaleza permanente de las claves primarias</h4>
+<div class="paragraph">
+<p>Las claves primarias en Cassandra son inmutables y no se pueden modificar una vez que se han definido. Esto significa que una vez que se ha asignado una clave primaria a una fila, no se puede cambiar. Esta naturaleza permanente tiene varias implicaciones importantes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Upsert:</strong> En Cassandra, las operaciones de escritura siguen una naturaleza upsert, lo que significa que tanto las operaciones de actualización (UPDATE) como las de inserción (INSERT) pueden ser tratadas como la misma operación. En otras palabras:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Si se realiza un UPDATE en una fila que no existe, se trata como un INSERT y se crea una nueva fila con la clave primaria especificada.</p>
+</li>
+<li>
+<p>Si se realiza un INSERT en una fila que ya existe, se trata como un UPDATE y se sobrescriben los datos existentes con los nuevos valores.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Esta naturaleza permanente de las claves primarias garantiza la consistencia y la integridad de los datos en el clúster, al tiempo que simplifica la lógica de escritura para los desarrolladores.</p>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podrían utilizar las claves primarias en una aplicación:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Un cliente envía una solicitud de escritura con una clave primaria específica y datos asociados.</p>
+</li>
+<li>
+<p>El nodo de Cassandra determina la ubicación de los datos en el clúster en función de la clave de partición.</p>
+</li>
+<li>
+<p>Se realiza una operación de upsert en el nodo correspondiente, tratando la operación como un INSERT o UPDATE según sea necesario.</p>
+</li>
+<li>
+<p>Una vez completada la operación, el nodo de Cassandra devuelve una respuesta al cliente, confirmando la operación y la ubicación de los datos en el clúster.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_timestamps_y_ttl_en_cassandra">6.5. Timestamps y TTL en Cassandra</h3>
+<div class="paragraph">
+<p>En Cassandra, los Timestamps y TTL (Time To Live) son características importantes que afectan la forma en que se manejan los datos y su duración en la base de datos.</p>
+</div>
+<div class="sect3">
+<h4 id="_timestamps_marcas_de_tiempo">6.5.1. Timestamps (Marcas de tiempo)</h4>
+<div class="paragraph">
+<p>Al insertar o modificar datos en una columna en Cassandra, se añade automáticamente un timestamp que indica cuándo se realizó la operación. Estos timestamps se utilizan para resolver conflictos de escritura y determinar el orden de las operaciones en caso de actualizaciones concurrentes.</p>
+</div>
+<div class="paragraph">
+<p>El enfoque comúnmente utilizado para resolver conflictos de escritura es el "last write wins", lo que significa que cuando hay dos escrituras concurrentes en la misma fila, se conserva la escritura con el timestamp más reciente.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ttl_time_to_live">6.5.2. TTL (Time To Live)</h4>
+<div class="paragraph">
+<p>La característica TTL permite establecer un tiempo de vida para las filas de la base de datos. Esto significa que después de un período de tiempo especificado, las filas serán eliminadas automáticamente de la base de datos.</p>
+</div>
+<div class="paragraph">
+<p>La sintaxis <code>USING TTL &lt;segundos&gt;</code> se utiliza al insertar o actualizar filas para añadir un TTL a la fila. Cada columna (excepto la clave primaria) puede tener su propio TTL, lo que permite un control granular sobre la duración de los datos almacenados.</p>
+</div>
+<div class="paragraph">
+<p>Para actualizar el TTL de una fila, es necesario volver a insertar la fila con el nuevo TTL deseado. Esto se aprovecha de la naturaleza upsert de Cassandra, donde una operación de inserción puede actuar como una operación de actualización si la fila ya existe.</p>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podrían utilizar Timestamps y TTL en una aplicación:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Un cliente envía una solicitud de inserción de datos a una tabla en Cassandra, especificando un TTL de 3600 segundos para los datos.</p>
+</li>
+<li>
+<p>El nodo de Cassandra añade los datos a la tabla y asigna un timestamp a la operación de inserción.</p>
+</li>
+<li>
+<p>Después de 3600 segundos, el sistema de limpieza de Cassandra eliminará automáticamente los datos de la tabla, según el TTL especificado.</p>
+</li>
+<li>
+<p>Si se necesita extender la vida útil de los datos, el cliente puede volver a insertar los datos con un nuevo TTL antes de que expire el TTL actual.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_keyspaces">6.6. Keyspaces</h3>
+<div class="paragraph">
+<p>En Cassandra, los keyspaces son una parte fundamental de la organización y gestión de los datos, proporcionando un nivel lógico de agrupación similar a las bases de datos en sistemas relacionales.</p>
+</div>
+<div class="paragraph">
+<p>Podemos entender un keyspace en Cassandra como un equivalente a una base de datos en un sistema relacional. Es un espacio o contenedor lógico que agrupa un conjunto de tablas relacionadas. Cada keyspace define un ámbito de trabajo separado en el que se pueden definir y gestionar tablas específicas.</p>
+</div>
+<div class="paragraph">
+<p>El keyspace controla la replicación de los datos que contiene en cada data center del clúster de Cassandra. Define cómo se distribuyen y replican los datos en el clúster para garantizar la disponibilidad y la tolerancia a fallos. Además, proporciona un espacio de nombres lógico para organizar y gestionar las tablas relacionadas en el clúster.</p>
+</div>
+<div class="paragraph">
+<p>Normalmente, se define un keyspace por aplicación en Cassandra. Cada aplicación puede tener su propio keyspace, que contiene las tablas necesarias para esa aplicación específica. Esto permite un aislamiento y una gestión independiente de los datos entre diferentes aplicaciones que comparten el mismo clúster de Cassandra.</p>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podrían utilizar los keyspaces en una aplicación:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para una aplicación de comercio electrónico, se podría crear un keyspace llamado "ecommerce" que contiene todas las tablas relacionadas con el catálogo de productos, pedidos, usuarios, etc.</p>
+</li>
+<li>
+<p>Cada tabla dentro del keyspace "ecommerce" estaría diseñada para satisfacer las necesidades específicas de esa área de la aplicación.</p>
+</li>
+<li>
+<p>El keyspace "ecommerce" se configuraría para replicar los datos en varios data centers del clúster, garantizando la disponibilidad y la tolerancia a fallos para la aplicación.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Este sería el código de creación de un keyspace en Cassandra:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE KEYSPACE IF NOT EXISTS ecommerce
+WITH replication = {
+  'class': 'SimpleStrategy',
+  'replication_factor': 3
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Este código crea un keyspace llamado "ecommerce" si aún no existe. Utiliza la estrategia de replicación SimpleStrategy, que es adecuada para entornos de desarrollo o pequeños clusters. En este caso, se establece el factor de replicación en 3, lo que significa que cada partición se replica en tres nodos diferentes del clúster para garantizar la disponibilidad y la tolerancia a fallos.</p>
+</div>
+<div class="paragraph">
+<p>Podríamos crear uno con una estrategia de replicación NetworkTopologyStrategy, que permite definir factores de replicación diferentes para cada data center en el clúster:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE KEYSPACE IF NOT EXISTS ecommerce
+WITH replication = {
+  'class': 'NetworkTopologyStrategy',
+  'datacenter1': 3,
+  'datacenter2': 2
+};</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_modelado_basado_en_consultas_en_cassandra">6.7. Modelado basado en consultas en Cassandra</h3>
+<div class="paragraph">
+<p>En Cassandra, el modelado de datos se realiza teniendo en cuenta las consultas que se realizarán sobre los datos. Esto difiere del enfoque en las bases de datos relacionales (BDR), donde el modelado se centra en evitar la redundancia y utilizar joins para recuperar datos relacionados.</p>
+</div>
+<div class="paragraph">
+<p>El enfoque de modelado en Cassandra se basa en optimizar el rendimiento de las consultas y actualizaciones. El objetivo principal es reducir el número de particiones que se deben leer o escribir durante una consulta, lo que contribuye a mejorar la escalabilidad y la eficiencia del sistema.</p>
+</div>
+<div class="paragraph">
+<p>Para lograr un rendimiento óptimo, <strong>es común desnormalizar los datos en Cassandra</strong>. Esto significa que se permite la duplicación de datos y se optimiza el esquema de la tabla para que las consultas y actualizaciones sean rápidas y eficientes. La desnormalización puede implicar la inclusión de datos repetidos y la duplicación de datos entre tablas.</p>
+</div>
+<div class="paragraph">
+<p>Los objetivos principales del modelado en Cassandra son:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Reducir el número de particiones a utilizar en una consulta.</p>
+</li>
+<li>
+<p>Optimizar el rendimiento de las consultas y actualizaciones.</p>
+</li>
+<li>
+<p>Minimizar la sobrecarga de lectura y escritura en el sistema.</p>
+</li>
+<li>
+<p>Diseñar un esquema que se adapte a las consultas más comunes y críticas para la aplicación.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A continuación se muestra un ejemplo de cómo se podría realizar el modelado basado en consultas en Cassandra:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Para una aplicación de redes sociales, se identifican las consultas más frecuentes, como recuperar todos los mensajes de un usuario o buscar todos los amigos de un usuario.</p>
+</li>
+<li>
+<p>Se diseña el esquema de la tabla teniendo en cuenta estas consultas, desnormalizando los datos según sea necesario para optimizar el rendimiento.</p>
+</li>
+<li>
+<p>Se utilizan claves compuestas y columnas de clustering para agrupar y ordenar los datos de manera eficiente para las consultas más comunes.</p>
+</li>
+<li>
+<p>Se realizan pruebas de rendimiento para ajustar el esquema según sea necesario y garantizar un rendimiento óptimo en producción.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_consideraciones_de_diseño_en_cassandra">7. Consideraciones de diseño en Cassandra</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>En Cassandra, el diseño de la base de datos se enfrenta a desafíos únicos debido a su naturaleza distribuida y orientada a filas. A continuación, se presentan algunas consideraciones clave a tener en cuenta al diseñar un esquema de base de datos en Cassandra:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Limitaciones de los joins</strong>: A diferencia de las bases de datos relacionales, Cassandra no permite la realización de operaciones de joins entre tablas. Por lo tanto, es necesario desnormalizar los datos para incorporar resultados de joins necesarios en el modelo de datos.</p>
+</li>
+<li>
+<p><strong>Falta de integridad referencial</strong>: En Cassandra no existe integridad referencial entre tablas. Aunque es posible almacenar referencias (como identificadores), estas son tratadas simplemente como datos y no hay restricciones de integridad referencial aplicadas por el sistema.</p>
+</li>
+<li>
+<p><strong>Diseño basado en consultas</strong>: El diseño de la base de datos en Cassandra se centra en las consultas que se realizarán sobre los datos. Es importante identificar los flujos de consulta habituales y diseñar tablas que soporten eficientemente estas consultas.</p>
+</li>
+<li>
+<p><strong>Optimización del almacenamiento</strong>: Para un rendimiento óptimo, es importante diseñar el esquema de la base de datos para minimizar el número de particiones que se utilizan en una consulta. Las particiones no se pueden dividir entre nodos, por lo que un buen rendimiento se logra al realizar consultas que afectan a una sola partición.</p>
+</li>
+<li>
+<p><strong>Ordenación de las filas de una partición</strong>: Las filas dentro de una partición se almacenan de acuerdo con un criterio de ordenación especificado en las columnas de clustering. Es importante diseñar estas columnas de clustering cuidadosamente para garantizar un acceso eficiente a los datos durante las consultas.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Estas consideraciones son fundamentales para diseñar un esquema de base de datos eficiente y escalable en Cassandra, aprovechando las características y limitaciones de esta tecnología distribuida.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_instalación_y_configuración_de_cassandra">8. Instalación y configuración de Cassandra</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cassandra es una base de datos distribuida altamente escalable y tolerante a fallos que se utiliza para almacenar grandes volúmenes de datos en clústeres de servidores. En esta sección, se describirá cómo instalar y configurar Cassandra en un entorno local para comenzar a trabajar con esta base de datos NoSQL. Daremos las referencias para una instalación nativa de Cassandra en sistemas Linux y con contenedores Docker.</p>
+</div>
+<div class="sect2">
+<h3 id="_instalación_nativa_de_cassandra_en_linux">8.1. Instalación Nativa de Cassandra en Linux</h3>
+<div class="paragraph">
+<p>Para instalar Cassandra en un sistema Linux, se recomiendan los siguientes tutoriales:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-install-cassandra-and-run-a-single-node-cluster-on-ubuntu-22-04">Instalación en un solo nodo</a></p>
+</li>
+<li>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-install-cassandra-and-run-a-multi-node-cluster-on-ubuntu-22-04">Instalación en varios nodos</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_instalación_de_cassandra_con_docker">8.2. Instalación de Cassandra con Docker</h3>
+<div class="paragraph">
+<p>Para instalar Cassandra con Docker, se puede utilizar la imagen oficial de Cassandra en Docker Hub. A continuación se muestra un tutorial para instalar y ejecutar Cassandra en un cluster de varios nodos con Docker Compose. También se proporciona un enlace a un script de instalación con Docker para un solo nodo y un repositorio de GitHub con para la configuración de un clúster Cassandra de varios nodos con Docker Compose:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.instaclustr.com/blog/running-apache-cassandra-single-and-multi-node-clusters-on-docker-with-docker-compose/">Tutorial de instalación con Docker Compose</a></p>
+</li>
+<li>
+<p><a href="https://gist.github.com/ualmtorres/ca414f89b11765a651e32f9f48b08d42">Script de instalación con Docker para un solo nodo</a></p>
+</li>
+<li>
+<p><a href="https://$$$">Repositorio de GitHub para un clúster de varios nodos con Docker Compose</a></p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Configuración de Cassandra</div>
+<div class="paragraph">
+<p>La configuración de Cassandra se realiza a través del archivo de configuración <code>cassandra.yaml</code>, que se encuentra en el directorio de instalación de Cassandra (p.e. <code>/var/lib/cassandra</code>). Este archivo contiene las opciones de configuración para el nodo de Cassandra, como la dirección IP, el puerto, la estrategia de replicación, el factor de replicación, etc. Nosotros configuraremos los valores de:
+- <code>cluster_name</code> para especificar el nombre del clúster.
+- <code>seed_provider.parameters.seeds</code> para especificar los nodos semilla del clúster.
+- <code>user_defined_functions_enabled</code> para habilitar las funciones definidas por el usuario.
+- <code>materialized_views_enabled:</code> para habilitar las vistas materializadas.
+- <code>sasi_indexes_enabled</code> para habilitar los índices SASI. Estos índices permiten realizar búsquedas de texto completo en las columnas de texto.</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Una vez instalada Cassandra, se puede comprobar la instalación desde el sistema operativo con <code>nodetool</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>nodetool status</code> muestra el estado del clúster y los nodos.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell"># nodetool status
+Datacenter: DC1
+===============
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address     Load        Tokens  Owns (effective)  Host ID                               Rack
+UN  172.19.0.2  588.84 KiB  128     100.0%            761d1d08-0a54-443a-896c-070c222374ee  RACK1
+UN  172.19.0.4  585.51 KiB  128     100.0%            03731852-8a28-4831-9df6-fb0c88d8ebac  RACK1
+UN  172.19.0.3  363.82 KiB  128     100.0%            80f3fbfc-b950-4dd5-bc47-d8333b7b8bd1  RACK1</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><code>nodetool info</code> muestra información sobre el nodo actual.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">  # nodetool info
+ID                     : 761d1d08-0a54-443a-896c-070c222374ee
+Gossip active          : true
+Native Transport active: true
+Load                   : 588.84 KiB
+Generation No          : 1712827111
+Uptime (seconds)       : 14908
+Heap Memory (MB)       : 196.78 / 2423.94
+Off Heap Memory (MB)   : 0.00
+Data Center            : DC1
+Rack                   : RACK1
+Exceptions             : 0
+Key Cache              : entries 35, size 3.13 KiB, capacity 100 MiB, 186 hits, 233 requests, 0.798 recent hit rate, 14400 save period in seconds
+Row Cache              : entries 0, size 0 bytes, capacity 0 bytes, 0 hits, 0 requests, NaN recent hit rate, 0 save period in seconds
+Counter Cache          : entries 0, size 0 bytes, capacity 50 MiB, 0 hits, 0 requests, NaN recent hit rate, 7200 save period in seconds
+Network Cache          : size 8 MiB, overflow size: 0 bytes, capacity 128 MiB
+Percent Repaired       : 0.0%
+Token                  : (invoke with -T/--tokens to see all 128 tokens)</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cql_lenguaje_de_consulta_de_cassandra">9. CQL: Lenguaje de consulta de Cassandra</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cassandra Query Language (CQL) es un lenguaje de consulta similar a SQL que se utiliza para interactuar con la base de datos Cassandra. CQL proporciona una sintaxis sencilla y familiar para realizar operaciones de lectura y escritura en Cassandra, como consultas, inserciones, actualizaciones y eliminaciones.</p>
+</div>
+<div class="sect2">
+<h3 id="_características_de_cql">9.1. Características de CQL</h3>
+<div class="paragraph">
+<p>Algunas de las características clave de CQL incluyen:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Sintaxis similar a SQL:</strong> CQL se basa en una sintaxis similar a SQL, lo que facilita la transición de los desarrolladores de bases de datos relacionales a Cassandra.</p>
+</li>
+<li>
+<p><strong>Tipos de datos nativos:</strong> CQL admite varios tipos de datos nativos, como texto, números, booleanos, UUID, fechas y conjuntos.</p>
+</li>
+<li>
+<p><strong>Claves compuestas:</strong> CQL permite definir claves compuestas para organizar y acceder a los datos de manera eficiente.</p>
+</li>
+<li>
+<p><strong>Consistencia y Durabilidad:</strong> CQL proporciona opciones para controlar la consistencia y la durabilidad de las operaciones de lectura y escritura.</p>
+</li>
+<li>
+<p><strong>Funciones de agregación:</strong> CQL incluye funciones de agregación integradas para realizar cálculos y transformaciones de datos.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_consultas_básicas_en_cql">9.2. Consultas básicas en CQL</h3>
+<div class="paragraph">
+<p>Algunas de las operaciones básicas que se pueden realizar en CQL incluyen el <code>SELECT</code> para recuperar datos, el <code>INSERT</code> para añadir nuevos datos, el <code>UPDATE</code> para modificar datos existentes y el <code>DELETE</code> para eliminar datos de una tabla.</p>
+</div>
+<div class="paragraph">
+<p>A continuación se muestran ejemplos de cómo se podrían realizar estas operaciones en CQL:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>SELECT * FROM my_keyspace.my_table WHERE id = '123';</code> para recuperar todos los datos de una tabla donde el <code>id</code> es igual a <code>123</code>.</p>
+</li>
+<li>
+<p><code>INSERT INTO my_keyspace.my_table (id, name, age) VALUES ('123', 'Alice', 30);</code> para añadir una nueva fila a una tabla con los valores especificados.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Es importante destacar que en la operación de inserción hay que añadir todos los campos de la tabla, aunque no se vayan a utilizar.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p><code>UPDATE my_keyspace.my_table SET name = 'Bob' WHERE id = '123';</code> para modificar el valor de la columna <code>name</code> en una fila existente.</p>
+</li>
+<li>
+<p><code>DELETE FROM my_keyspace.my_table WHERE id = '123';</code> para eliminar una fila de una tabla donde el <code>id</code> es igual a `123.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Es importante tener en cuenta que las operaciones de escritura en Cassandra siguen una naturaleza upsert, lo que significa que tanto las operaciones de actualización como las de inserción pueden ser tratadas como la misma operación.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_operaciones_sobre_keyspaces">9.3. Operaciones sobre keyspaces</h3>
+<div class="paragraph">
+<p>Los keyspaces en Cassandra se utilizan para organizar y gestionar las tablas relacionadas en el clúster. En un keyspace se definen las opciones de replicación, como la estrategia de replicación y el factor de replicación, que determinan cómo se distribuyen y replican los datos en el clúster.</p>
+</div>
+<div class="paragraph">
+<p>Algunas de las operaciones que se pueden realizar sobre keyspaces en CQL incluyen:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE KEYSPACE my_keyspace
+WITH replication = {
+    'class': 'SimpleStrategy',
+    'replication_factor': 3
+    };</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>para crear un nuevo keyspace con una estrategia de replicación SimpleStrategy y un factor de replicación de 3.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DESCRIBE KEYSPACE my_keyspace;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>para mostrar la información sobre un keyspace, incluyendo las tablas asociadas y las opciones de replicación.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">USE my_keyspace;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>para cambiar al keyspace especificado y realizar operaciones en las tablas asociadas.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">ALTER KEYSPACE my_keyspace
+WITH replication = {
+    'class': 'NetworkTopologyStrategy',
+    'datacenter1': 3,
+    'datacenter2': 2
+    };</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>para modificar las opciones de replicación de un keyspace.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DROP KEYSPACE my_keyspace;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>para eliminar un keyspace y todas las tablas asociadas.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_tablas_en_cql">9.4. Tablas en CQL</h3>
+<div class="paragraph">
+<p>En Cassandra, las tablas se utilizan para organizar y almacenar datos de manera estructurada. Cada tabla tiene un esquema predefinido que define las columnas y las claves primarias que puede contener. Las tablas se organizan en keyspaces y se distribuyen y replican en los nodos del clúster.</p>
+</div>
+<div class="paragraph">
+<p>Algunas de las operaciones que se pueden realizar sobre tablas en CQL incluyen:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Crear una nueva tabla con una columna de identificador único (UUID) y una columna de texto</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE my_keyspace.my_table (
+    id UUID PRIMARY KEY,
+    name TEXT
+    );</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Mostrar la información sobre una tabla, incluyendo las columnas y las claves primarias</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DESCRIBE TABLE my_keyspace.my_table;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Añadir una nueva columna a una tabla existente:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">ALTER TABLE my_keyspace.my_table ADD age INT;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Modificar el tipo de datos de una columna en una tabla existente:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">ALTER TABLE my_keyspace.my_table ALTER age TYPE TEXT;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Eliminar una columna de una tabla existente:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">ALTER TABLE my_keyspace.my_table DROP age;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Eliminar una tabla y todos los datos asociados:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DROP TABLE my_keyspace.my_table;</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_claves_primarias_y_claves_de_partición_en_cql">9.4.1. Claves primarias y claves de partición en CQL</h4>
+<div class="paragraph">
+<p>En Cassandra, las claves primarias desempeñan un papel fundamental en la distribución y organización de los datos en el clúster. La clave primaria de una tabla se compone de una clave de partición y, opcionalmente, columnas de clustering. La clave de partición determina cómo se distribuyen los datos en el clúster, mientras que las columnas de clustering ordenan las filas dentro de una partición.</p>
+</div>
+<div class="paragraph">
+<p>Algunos ejemplos de cómo se podrían definir claves primarias en CQL incluyen:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Crear una tabla con una clave primaria simple que consta de una columna de identificador único (UUID):</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE my_keyspace.my_table (
+    id UUID PRIMARY KEY,
+    name TEXT
+    );</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Crear una tabla con una clave primaria compuesta que consta de dos columnas, <code>user_id</code> y <code>post_id</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">`CREATE TABLE my_keyspace.my_table (
+    user_id UUID,
+    post_id UUID,
+    post_title TEXT,
+    post_content TEXT,
+    PRIMARY KEY (user_id, post_id)
+    );`</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>El código anterior crea una tabla con una clave primaria compuesta que consta de dos columnas, <code>user_id</code> y <code>post_id</code>, donde <code>user_id</code> se utiliza como clave de partición y <code>post_id</code> como columna de clustering. Esta estructura permite agrupar los posts de cada usuario juntos en los nodos del clúster y ordenar los posts dentro de cada partición de usuario.</p>
+</div>
+<div class="paragraph">
+<p>Para facilitar la distinción entre las columnas de clave de partición y las columnas de clustering, se pueden encerrar las columnas de clave de partición entre paréntesis, dejando fuera a las columnas de clustering. Por ejemplo:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Crear una tabla con una clave primaria compuesta que consta de dos columnas, <code>user_id</code> y <code>post_id</code>, donde <code>user_id</code> se utiliza como clave de partición y <code>post_id</code> como columna de clustering:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE my_keyspace.my_table (
+    user_id UUID,
+    post_id UUID,
+    post_title TEXT,
+    post_content TEXT,
+    PRIMARY KEY ((user_id), post_id)
+    );</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Si la clave de partición es una sola columna, no es necesario encerrarla entre paréntesis. Si la clave de partición es compuesta, se deben encerrar todas las columnas de clave de partición entre paréntesis.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Para hacer más explícito que la columna <code>post_id</code> es una columna de clustering, se puede añadir la cláusula <code>WITH CLUSTERING ORDER BY (post_id DESC);</code> para ordenar los posts en orden descendente dentro de cada partición de usuario. A continuación se muestra un ejemplo de cómo se podría definir la clave primaria de esta manera:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE my_keyspace.my_table (
+    user_id UUID,
+    post_id UUID,
+    post_title TEXT,
+    post_content TEXT,
+    PRIMARY KEY ((user_id), post_id)
+    ) WITH CLUSTERING ORDER BY (post_id DESC);</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_colecciones_y_udt_en_cql">9.5. Colecciones y UDT en CQL</h3>
+<div class="paragraph">
+<p>CQL también admite colecciones y tipos de datos definidos por el usuario (UDT) para almacenar datos complejos y estructurados en las tablas de Cassandra.</p>
+</div>
+<div class="paragraph">
+<p>Las colecciones en CQL permiten almacenar múltiples valores en una sola columna, como listas, conjuntos y mapas. Por ejemplo, se pueden utilizar listas para almacenar una serie de valores, conjuntos para almacenar valores únicos y mapas para almacenar pares clave-valor.</p>
+</div>
+<div class="paragraph">
+<p>Los UDT en CQL permiten definir tipos de datos personalizados con campos y tipos de datos específicos. Estos tipos de datos personalizados se pueden utilizar para estructurar y organizar los datos de manera más eficiente en las tablas de Cassandra.</p>
+</div>
+<div class="paragraph">
+<p>A continuación se muestran ejemplos de cómo se podrían utilizar colecciones y UDT en CQL:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Crear una tabla de personas que incluya una columna de lista de hobbies para almacenar múltiples valores:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE my_keyspace.people (
+    id UUID PRIMARY KEY,
+    name TEXT,
+    hobbies LIST&lt;TEXT&gt;
+    );</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Crear una tabla de usuarios que incluya una columna de conjunto de roles para almacenar valores únicos:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE my_keyspace.users (
+    id UUID PRIMARY KEY,
+    name TEXT,
+    roles SET&lt;TEXT&gt;
+    );</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Crear una tabla de libros que incluya una columna de mapa de autores para almacenar pares clave-valor:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE my_keyspace.books (
+    id UUID PRIMARY KEY,
+    title TEXT,
+    authors MAP&lt;TEXT, TEXT&gt;
+    );</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>En el ejemplo anterior, el mapa de autores se utiliza para almacenar los nombres de los autores y sus roles en el libro.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Crear un tipo de datos definido por el usuario (UDT) para representar un libro con un título y una lista de autores:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TYPE my_keyspace.book (
+    title TEXT,
+    authors LIST&lt;TEXT&gt;
+    );</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Crear una tabla de libros que incluya una columna de tipo UDT para almacenar datos estructurados:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE my_keyspace.books (
+    id UUID PRIMARY KEY,
+    book FROZEN&lt;book&gt;
+    );</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>En el ejemplo anterior, la columna <code>book</code> se define como <code>FROZEN&lt;book&gt;</code> para indicar que se trata de un tipo de datos UDT con campos estructurados. <code>FROZEN</code> se utiliza para indicar que el tipo de datos UDT está congelado y no se puede modificar. Por tanto, un libro almacenado en esta columna no se puede modificar una vez insertado.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_indexación_en_cql">9.6. Indexación en CQL</h3>
+<div class="paragraph">
+<p>En Cassandra, la indexación se utiliza para acelerar las consultas y permitir búsquedas eficientes en las tablas. La indexación en Cassandra se realiza mediante índices secundarios y vistas materializadas, que permiten realizar consultas rápidas y eficientes en las tablas.</p>
+</div>
+<div class="paragraph">
+<p>Los índices secundarios en Cassandra se utilizan para indexar columnas no clave y permitir búsquedas rápidas en los datos. Los índices secundarios se crean en columnas específicas de una tabla y se utilizan para acelerar las consultas que filtran por esas columnas. Sin embargo, los índices secundarios pueden tener limitaciones en términos de rendimiento y escalabilidad, por lo que es importante utilizarlos con precaución.</p>
+</div>
+<div class="paragraph">
+<p>Las vistas materializadas en Cassandra se utilizan para precalcular y almacenar los resultados de consultas complejas en una tabla separada. Las vistas materializadas permiten realizar consultas eficientes en los datos precalculados y reducen la carga en el clúster al evitar cálculos repetidos. Las vistas materializadas se actualizan automáticamente cuando se modifican los datos subyacentes en la tabla original.</p>
+</div>
+<div class="paragraph">
+<p>A continuación se muestran ejemplos de cómo se podrían utilizar índices secundarios y vistas materializadas en CQL:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Crear un índice secundario en una columna específica de una tabla para acelerar las consultas:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE INDEX ON my_keyspace.my_table (column_name);</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Crear una vista materializada en una tabla para precalcular y almacenar los resultados de una consulta compleja:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE MATERIALIZED VIEW my_keyspace.my_view AS
+SELECT column1, column2
+FROM my_keyspace.my_table
+WHERE column1 IS NOT NULL
+PRIMARY KEY (column1, column2);</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Realizar una consulta en una vista materializada para recuperar los datos precalculados:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT * FROM my_keyspace.my_view WHERE column1 = 'value';</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title"><code>ALLOW FILTERING</code></div>
+<div class="paragraph">
+<p>Cassandra no permite realizar consultas sobre columnas que no sean clave sin un índice secundario. Para forzar la recuperación de datos sin un índice secundario, se puede utilizar la cláusula <code>ALLOW FILTERING</code> en la consulta. Sin embargo, esto puede tener un impacto negativo en el rendimiento y se debe utilizar con precaución.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_funciones_de_agregación_en_cql">9.7. Funciones de agregación en CQL</h3>
+<div class="paragraph">
+<p>De forma análoga a SQL, CQL proporciona funciones de agregación integradas para realizar cálculos y transformaciones de datos en las consultas. Algunas de las funciones de agregación más comunes incluyen:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>COUNT(*)</code> para contar el número de filas en una tabla.</p>
+</li>
+<li>
+<p><code>SUM(column)</code> para sumar los valores de una columna numérica.</p>
+</li>
+<li>
+<p><code>AVG(column)</code> para calcular la media de los valores de una columna numérica.</p>
+</li>
+<li>
+<p><code>MIN(column)</code> para encontrar el valor mínimo de una columna numérica.</p>
+</li>
+<li>
+<p><code>MAX(column)</code> para encontrar el valor máximo de una columna numérica.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>También, de forma análoga a SQL, se pueden utilizar las cláusulas <code>GROUP BY</code> y <code>HAVING</code> para agrupar los resultados de una consulta y aplicar condiciones a los grupos. Por ejemplo:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>SELECT department, AVG(salary) FROM employees GROUP BY department;</code> para calcular la media de los salarios por departamento.</p>
+</li>
+<li>
+<p><code>SELECT department, AVG(salary) FROM employees GROUP BY department HAVING AVG(salary) &gt; 50000;</code> para calcular la media de los salarios por departamento y filtrar los resultados por salarios superiores a 50.000.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ejemplo_de_base_de_datos_para_una_aplicación_de_música_en_streaming">10. Ejemplo de base de datos para una aplicación de música en streaming</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Para ilustrar cómo se podrían utilizar las características de CQL en una aplicación real, consideremos un ejemplo de base de datos para una aplicación de música. En esta aplicación, se podrían utilizar keyspaces, tablas, claves primarias, colecciones y UDT para almacenar y gestionar los datos de los artistas, álbumes, canciones, listas de reproducción, usuarios, canciones reproducidas recientemente, etc. Aquí nos centraremos únicamente en una versión simplififcada de la tabla de usuarios y de las canciones reproducidas recientemente.</p>
+</div>
+<div class="paragraph">
+<p>La tabla de usuarios podría tener la siguiente estructura:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>users</code>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>id</code> (UUID): Identificador único del usuario (clave primaria).</p>
+</li>
+<li>
+<p><code>name</code> (TEXT): Nombre del usuario.</p>
+</li>
+<li>
+<p><code>email</code> (TEXT): Correo electrónico del usuario.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>last_played_songs</code>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>user_id</code> (UUID): Identificador único del usuario (clave de partición).</p>
+</li>
+<li>
+<p><code>song_id</code> (UUID): Identificador único de la canción (columna de clustering).</p>
+</li>
+<li>
+<p><code>played_at</code> (TIMESTAMP): Marca de tiempo de la última reproducción de la canción.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_creación_del_keyspace">10.1. Creación del keyspace</h3>
+<div class="paragraph">
+<p>Para crear un keyspace llamado <code>music</code> con una replicación de 1 nodo, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE KEYSPACE IF NOT EXISTS music
+WITH replication = {
+    'class': 'SimpleStrategy',
+    'replication_factor': 1
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para mostrar información sobre el keyspace <code>music</code>, usaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DESCRIBE KEYSPACE music;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para modificar el keyspace <code>music</code> para tener una replicación de 3 nodos, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">ALTER KEYSPACE music
+WITH replication = {
+    'class': 'SimpleStrategy',
+    'replication_factor': 3
+};</code></pre>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Redistribución de datos</div>
+<div class="paragraph">
+<p>Tras modificar el factor de replicación, Cassandra nos informa que deberíamos realizar una reparación manual para que los datos existentes se repliquen en los nuevos nodos.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">Warnings :
+When increasing replication factor you need to run a full (-full) repair to distribute the data.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En nuestro caso no es necesario, ya que el keyspace está vacío. En caso de ser necesario, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">nodetool repair -full music;</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Para poner en uso el keyspace <code>music</code>, usaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">USE music;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_operaciones_con_la_tabla_de_usuarios">10.2. Operaciones con la tabla de usuarios</h3>
+<div class="paragraph">
+<p>Para crear una tabla llamada <code>users</code> con las columnas <code>id</code>, <code>name</code> y <code>email</code>, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE IF NOT EXISTS music.users (
+    id UUID PRIMARY KEY,
+    name TEXT,
+    email TEXT
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para mostrar información sobre la tabla <code>users</code>, usaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DESCRIBE TABLE music.users;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>El comando anterior devolvería información sobre la tabla creada.</p>
+</div>
+<div class="paragraph">
+<p>Para insertar un usuario en la tabla <code>users</code>, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">INSERT INTO music.users (id, name, email)
+VALUES (123e4567-e89b-12d3-a456-426614174000, 'John', 'john@acme.com');</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para actualizar el usuario con id <code>123e4567-e89b-12d3-a456-426614174000</code>, usaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">UPDATE  music.users
+SET     name = 'John Doe', email = 'johndoe@acme.com'
+WHERE   id = 123e4567-e89b-12d3-a456-426614174000;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para eliminar el usuario con id <code>123e4567-e89b-12d3-a456-426614174000</code>, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DELETE
+FROM    music.users
+WHERE   id = 123e4567-e89b-12d3-a456-426614174000;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para continuar con el ejemplo, dejaremos la tabla <code>users</code> con dos usuarios.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">INSERT INTO music.users (id, name, email) VALUES  (123e4567-e89b-12d3-a456-426614174000, 'John Doe', 'johndoe@acme.com');
+INSERT INTO music.users (id, name, email) VALUES  (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 'janesmith@acme.com');</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>La tabla <code>users</code> ahora contiene dos usuarios:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell"> id                                   | email              | name
+--------------------------------------+--------------------+------------
+ 123e4567-e89b-12d3-a456-426614174000 |   johndoe@acme.com |   John Doe
+ 123e4567-e89b-12d3-a456-426614178000 | janesmith@acme.com | Jane Smith</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_operaciones_con_la_tabla_de_canciones_escuchadas_por_los_usuarios">10.3. Operaciones con la tabla de canciones escuchadas por los usuarios</h3>
+<div class="paragraph">
+<p>Crearemos una tabla llamada <code>last_played_songs_by_user</code> para almacenar las canciones escuchadas recientemente por los usuarios. La tabla tendrá las columnas <code>user_id</code>, <code>song_id</code>, <code>played_at</code>, <code>user_name</code>, <code>song_name</code>, <code>artist_name</code> y <code>cover_url</code>. En esta tabla utilizaremos la columna <code>user_id</code> como clave de partición y la columna <code>played_at</code> como columna de clustering para ordenar las canciones por fecha de reproducción. La columna <code>user_name</code> será una columna estática que se replicará en todas las particiones para evitar la necesidad de realizar consultas adicionales para recuperar el nombre del usuario.
+Para crear una tabla llamada <code>last_played_songs_by_user</code>, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE IF NOT EXISTS music.last_played_songs_by_user (
+    user_id UUID,
+    user_name TEXT STATIC,
+    song_id UUID,
+    song_name TEXT,
+    artist_name TEXT,
+    cover_url TEXT,
+    played_at TIMESTAMP,
+    PRIMARY KEY ((user_id), played_at)
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para mostrar información sobre la tabla <code>last_played_songs_by_user</code>, usaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DESCRIBE TABLE music.last_played_songs_by_user;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para insertar canciones escuchadas por usuarios, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">-- Canciones de John Doe
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614174000, 'John Doe', 123e4567-e89b-12d3-a456-426614174001, 'This is my song', 'The good singers', 'https://covers.com/this-is-my-song', toTimestamp(now()));
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614174000, 'John Doe', 123e4567-e89b-12d3-a456-426614174002, 'Holiday song', 'The Summers', 'https://covers.com/holiday-song', toTimestamp(now()) + 3m);
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614174000, 'John Doe', 123e4567-e89b-12d3-a456-426614174002, 'Holiday song', 'The Summers', 'https://covers.com/holiday-song', toTimestamp(now()) + 4m);
+
+-- Canciones de Jane Smith
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 123e4567-e89b-12d3-a456-426614174001, 'This is my song', 'The good singers', 'https://covers.com/this-is-my-song', toTimestamp(now()) + 5m);
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 123e4567-e89b-12d3-a456-426614174002, 'Holiday song',  'The Summers', 'https://covers.com/holiday-song', toTimestamp(now()) + 10m);
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 123e4567-e89b-12d3-a456-426614174003, 'Cat meaow', 'The Cats', 'https://covers.com/cat-meaow', toTimestamp(now()) + 15m);
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 123e4567-e89b-12d3-a456-426614174003, 'Cat meaow', 'The Cats', 'https://covers.com/cat-meaow', toTimestamp(now()) + 16m);
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 123e4567-e89b-12d3-a456-426614174004, 'Dog bark', 'The Dogs', 'https://covers.com/dog-bark', toTimestamp(now()) + 20m);
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 123e4567-e89b-12d3-a456-426614174004, 'Dog bark', 'The Dogs', 'https://covers.com/dog-bark', toTimestamp(now()) + 21m);
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 123e4567-e89b-12d3-a456-426614174004, 'Dog bark',  'The Dogs', 'https://covers.com/dog-bark', toTimestamp(now()) + 22m);
+INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (123e4567-e89b-12d3-a456-426614178000, 'Jane Smith', 123e4567-e89b-12d3-a456-426614174005, 'Bird tweet', 'The Birds', 'https://covers.com/bird-tweet', toTimestamp(now()) + 25m);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>La tabla <code>last_played_songs_by_user</code> ahora contiene las canciones escuchadas por los usuarios:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell"> user_id                              | played_at                       | user_name  | artist_name      | cover_url                          | song_id                              | song_name
+--------------------------------------+---------------------------------+------------+------------------+------------------------------------+--------------------------------------+-----------------
+ 123e4567-e89b-12d3-a456-426614174000 | 2024-04-12 07:25:56.255000+0000 |   John Doe | The good singers | https://covers.com/this-is-my-song | 123e4567-e89b-12d3-a456-426614174001 | This is my song
+ 123e4567-e89b-12d3-a456-426614174000 | 2024-04-12 07:28:56.266000+0000 |   John Doe |      The Summers |    https://covers.com/holiday-song | 123e4567-e89b-12d3-a456-426614174002 |    Holiday song
+ 123e4567-e89b-12d3-a456-426614174000 | 2024-04-12 07:29:56.271000+0000 |   John Doe |      The Summers |    https://covers.com/holiday-song | 123e4567-e89b-12d3-a456-426614174002 |    Holiday song
+ 123e4567-e89b-12d3-a456-426614178000 | 2024-04-12 07:30:56.275000+0000 | Jane Smith | The good singers | https://covers.com/this-is-my-song | 123e4567-e89b-12d3-a456-426614174001 | This is my song
+ 123e4567-e89b-12d3-a456-426614178000 | 2024-04-12 07:35:56.278000+0000 | Jane Smith |      The Summers |    https://covers.com/holiday-song | 123e4567-e89b-12d3-a456-426614174002 |    Holiday song
+ 123e4567-e89b-12d3-a456-426614178000 | 2024-04-12 07:40:56.281000+0000 | Jane Smith |         The Cats |       https://covers.com/cat-meaow | 123e4567-e89b-12d3-a456-426614174003 |       Cat meaow
+ 123e4567-e89b-12d3-a456-426614178000 | 2024-04-12 07:41:56.284000+0000 | Jane Smith |         The Cats |       https://covers.com/cat-meaow | 123e4567-e89b-12d3-a456-426614174003 |       Cat meaow
+ 123e4567-e89b-12d3-a456-426614178000 | 2024-04-12 07:45:56.288000+0000 | Jane Smith |         The Dogs |        https://covers.com/dog-bark | 123e4567-e89b-12d3-a456-426614174004 |        Dog bark
+ 123e4567-e89b-12d3-a456-426614178000 | 2024-04-12 07:46:56.292000+0000 | Jane Smith |         The Dogs |        https://covers.com/dog-bark | 123e4567-e89b-12d3-a456-426614174004 |        Dog bark
+ 123e4567-e89b-12d3-a456-426614178000 | 2024-04-12 07:47:56.296000+0000 | Jane Smith |         The Dogs |        https://covers.com/dog-bark | 123e4567-e89b-12d3-a456-426614174004 |        Dog bark
+ 123e4567-e89b-12d3-a456-426614178000 | 2024-04-12 07:50:56.299000+0000 | Jane Smith |        The Birds |      https://covers.com/bird-tweet | 123e4567-e89b-12d3-a456-426614174005 |      Bird tweet
+
+(11 rows)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para consultar las filas correspondientes a la canción con id <code>123e4567-e89b-12d3-a456-426614174003</code>, usaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT  *
+FROM    music.last_played_songs_by_user
+WHERE   song_id = 123e4567-e89b-12d3-a456-426614174003;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>La consulta anterior devolvería un error debido a que la columna <code>song_id</code> no forma parte de la clave primaria ni está indexada. Para poder consultar por esta columna o bien añadimos un índice o bien usamos <code>ALLOW FILTERING</code>. El índice se añadiría si se espera realizar consultas frecuentes sobre esta columna. Si no es el caso, se puede usar <code>ALLOW FILTERING</code> con precaución, ya que puede tener un impacto negativo en el rendimiento. Para añadir la opción <code>ALLOW FILTERING</code> a la consulta anterior usaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT  *
+FROM    music.last_played_songs_by_user
+WHERE   song_id = 123e4567-e89b-12d3-a456-426614174003
+ALLOW FILTERING;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para crear un índice en la columna <code>song_id</code> de la tabla <code>music.last_played_songs_by_user</code>, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE INDEX IF NOT EXISTS song_id_index
+ON music.last_played_songs_by_user (song_id);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_trazado_de_consultas_en_cassandra">10.4. Trazado de consultas en Cassandra</h3>
+<div class="paragraph">
+<p>La traza en Cassandra se utiliza para depurar y analizar las consultas que se realizan en la base de datos. En nuestro caso, la vamos a activar para analizar las consultas que se realizan en la tabla <code>music.last_played_songs_by_user</code> y saber si se están utilizando los índices de manera eficiente.</p>
+</div>
+<div class="paragraph">
+<p>Para activar la traza, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">TRACING ON;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A continuación, se volvería a ejecutar la consulta anterior para saber si se ha utilizado el índice en la consulta:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT  *
+FROM    music.last_played_songs_by_user
+WHERE   song_id = 123e4567-e89b-12d3-a456-426614174003;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En la salida de la traza se puede ver que se ha utilizado el índice</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">....
+ Tracing session: 0b3b3b00-8b3b-11ec-8b3b-8b3b8b3b8b3b
+....
+Executing read on music.last_played_songs_by_user using index song_id_index
+....</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para desactivar la traza, usaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">TRACING OFF;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_eliminación_de_la_tabla_el_índice_y_el_keyspace">10.5. Eliminación de la tabla, el índice y el keyspace</h3>
+<div class="paragraph">
+<p>Si se desea eliminar todo lo creado en este ejemplo, ejecutaríamos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">DROP INDEX IF EXISTS song_id_index;
+DROP TABLE IF EXISTS music.last_played_songs_by_user;
+DROP TABLE IF EXISTS music.users;
+DROP KEYSPACE IF EXISTS music;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Se podría haber eliminado todo directamente con <code>DROP KEYSPACE music;</code>, pero hemos preferido hacerlo paso a paso para mostrar cómo se eliminan tablas e índices.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_creación_de_una_api_rest_en_express_para_interactuar_con_cassandra">11. Creación de una API REST en Express para interactuar con Cassandra</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Para interactuar con Cassandra desde una aplicación web, se puede utilizar una API REST para realizar operaciones de lectura y escritura en la base de datos. En este ejemplo, se utilizará <a href="https://expressjs.com/">Express</a> para crear una API REST sobre un cluster de Cassandra y que permita realizar operaciones CRUD en la base de datos.</p>
+</div>
+<div class="sect2">
+<h3 id="_creación_del_proyecto_base">11.1. Creación del proyecto base</h3>
+<div class="paragraph">
+<p>Crear el proyecto base de la API REST en Express consultando este <a href="https://ualmtorres.github.io/howtos/ExpressNoSQLAPIREST/">tutorial para crear una API REST con Express</a>.</p>
+</div>
+<div class="paragraph">
+<p>En la carpeta del proyecto, una vez creado el proyecto base de la API REST en Express, se instalarán las dependencias necesarias para interactuar con Cassandra:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">npm install cassandra-driver</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuración_de_la_conexión_a_cassandra">11.2. Configuración de la conexión a Cassandra</h3>
+<div class="paragraph">
+<p>En primer lugar, se creará un archivo <code>db/cassandra.js</code> en la carpeta <code>db</code> del proyecto para configurar la conexión a Cassandra y exportar el cliente de Cassandra para su uso en otras partes de la aplicación. En este archivo se configurará la conexión a Cassandra y se creará un cliente de Cassandra para interactuar con la base de datos. La ventaja de crear un módulo de conexión a Cassandra es que se puede reutilizar en toda la aplicación para realizar operaciones CRUD en la base de datos.</p>
+</div>
+<div class="paragraph">
+<p>El archivo <code>cassandra.js</code> podría tener el siguiente contenido:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const cassandra = require('cassandra-driver');
+
+const client = new cassandra.Client({
+    contactPoints: ['localhost'],
+    localDataCenter: 'DC1',
+});
+
+module.exports = client;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En este archivo, se importa la biblioteca <code>cassandra-driver</code> y se crea un cliente de Cassandra con la configuración necesaria para conectarse a un clúster de Cassandra en <code>localhost</code> y el centro de datos <code>DC1</code>. A continuación, se exporta el cliente de Cassandra para su uso en otras partes de la aplicación.</p>
+</div>
+<div class="paragraph">
+<p>La conexión se cerrará automáticamente al finalizar cada operación de la API, por lo que no será necesario cerrarla explícitamente. Este enfoque permite reutilizar la conexión a Cassandra en todas las operaciones CRUD de la API REST y simplifica la gestión de la conexión en la aplicación.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_creación_de_los_endpoints_de_gestión_de_usuarios">11.3. Creación de los endpoints de gestión de usuarios</h3>
+<div class="paragraph">
+<p>A continuación, se creará un archivo <code>routes/users.js</code> en la carpeta <code>routes</code> del proyecto para definir las rutas de la API REST para interactuar con la base de datos de Cassandra. En este archivo se incluirán las operaciones CRUD para los usuarios y las canciones reproducidas recientemente.</p>
+</div>
+<div class="paragraph">
+<p>El archivo <code>users.js</code> podría tener el siguiente contenido:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const express = require('express');
+var router = express.Router();
+
+const client = require('../db/cassandra');
+
+// Endpoint GET "/"
+router.get('/', async function(req, res, next) {
+    // Se conecta a Cassandra
+    client.connect()
+
+    // Ejecuta una consulta a Cassandra para obtener todos los usuarios
+    const users = await client.execute('SELECT * FROM music.users');
+
+    // Responde con un JSON que contiene los usuarios obtenidos
+    res.status(200).json({result: 'OK', data: users.rows});
+}
+);
+
+// Endpoint GET "/:id"
+router.get('/:id', async function(req, res, next) {
+    // Se conecta a Cassandra
+    client.connect()
+
+    // Ejecuta una consulta a Cassandra para obtener un usuario por su ID
+    const user = await client.execute('SELECT * FROM music.users WHERE id = ?', [req.params.id]);
+
+    // Responde con un JSON que contiene el usuario obtenido
+    res.status(200).json({result: 'OK', data: user.rows});
+}
+);
+
+// Endpoint POST "/"
+router.post('/', async function(req, res, next) {
+    // Se conecta a Cassandra
+    client.connect()
+
+    // Ejecuta una consulta a Cassandra para insertar un usuario
+    const user = await client.execute('INSERT INTO music.users (id, name, email) VALUES (?, ?, ?)', [req.body.id, req.body.name, req.body.email]);
+
+    // Responde con un JSON que contiene el usuario insertado
+    res.status(200).json({result: 'OK', data: user.rows});
+}
+);
+
+// Endpoint PUT "/:id"
+router.put('/:id', async function(req, res, next) {
+    // Se conecta a Cassandra
+    client.connect()
+
+    // Ejecuta una consulta a Cassandra para actualizar un usuario por su ID
+    const user = await client.execute('UPDATE music.users SET name = ?, email = ? WHERE id = ?', [req.body.name, req.body.email, req.params.id]);
+
+    // Responde con un JSON que contiene el usuario actualizado
+    res.status(200).json({result: 'OK', data: user.rows});
+}
+);
+
+// Endpoint DELETE "/:id"
+router.delete('/:id', async function(req, res, next) {
+    // Se conecta a Cassandra
+    client.connect()
+
+    // Ejecuta una consulta a Cassandra para eliminar un usuario por su ID
+    const user = await client.execute('DELETE FROM music.users WHERE id = ?', [req.params.id]);
+
+    // Responde con un JSON que contiene el usuario eliminado
+    res.status(200).json({result: 'OK', data: user.rows});
+}
+);
+
+module.exports = router;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>En este archivo, se importa el módulo <code>express</code> y se define un enrutador <code>router</code> para gestionar las rutas de la API REST. Se importa el cliente de Cassandra del archivo <code>db/cassandra.js</code> y se definen las operaciones CRUD para los usuarios en las rutas <code>/</code> y <code>/:id</code>. Las operaciones CRUD incluyen obtener todos los usuarios, obtener un usuario por su ID, insertar un usuario, actualizar un usuario y eliminar un usuario.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuración_de_las_rutas">11.4. Configuración de las rutas</h3>
+<div class="paragraph">
+<p>En el archivo <code>app.js</code> del proyecto, se importará el archivo <code>music.js</code> y se definirá la ruta <code>/music</code> para acceder a las operaciones CRUD de la API REST:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">...
+var express = require('express'); <b class="conum">(1)</b>
+....
+
+var usersRouter = require('./routes/users'); <b class="conum">(2)</b>
+
+var app = express();
+
+...
+app.use('/users', usersRouter); <b class="conum">(3)</b>
+
+....</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Se importa el módulo <code>express</code>.</p>
+</li>
+<li>
+<p>Se importa el archivo <code>users.js</code> que contiene las rutas de la API REST.</p>
+</li>
+<li>
+<p>Se define la ruta <code>/users</code> para acceder a las operaciones CRUD de la API REST.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Con estas configuraciones, se puede acceder a las operaciones CRUD de la API REST en la ruta <code>/users</code> de la aplicación web. Por ejemplo, se podría acceder a la lista de usuarios en la ruta <code><a href="http://localhost:3000/users" class="bare">http://localhost:3000/users</a></code> y obtener los datos de los usuarios almacenados en la base de datos de Cassandra.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+    "result": "OK",
+    "data": [
+        {
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "email": "johndoe@acme.com",
+            "name": "John Doe"
+        },
+        {
+            "id": "123e4567-e89b-12d3-a456-426614178000",
+            "email": "janesmith@acme.com",
+            "name": "Jane Smith"
+        }
+    ]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_creación_de_los_endpoints_de_consulta_de_canciones_reproducidas_recientemente">11.5. Creación de los endpoints de consulta de canciones reproducidas recientemente</h3>
+<div class="paragraph">
+<p>Para consultar las canciones reproducidas recientemente por un usuario, se podría crear un archivo <code>routes/lastplayedsongs.js</code> en la carpeta <code>routes</code> del proyecto para definir las rutas de la API REST para interactuar con la tabla <code>last_played_songs_by_user</code> de Cassandra. En este archivo se incluirán las operaciones CRUD para las canciones reproducidas recientemente.</p>
+</div>
+<div class="paragraph">
+<p>Para recuperar las canciones tendremos un único endpoint que aceptará dos parámetros (<code>user_id</code> y <code>song_id</code>). Si se proporciona el <code>user_id</code>, se devolverán las canciones reproducidas recientemente por ese usuario. Si se proporciona el <code>song_id</code>, se devolverán los usuarios que han reproducido recientemente esa canción.</p>
+</div>
+<div class="paragraph">
+<p>El archivo <code>lastplayedsongs.js</code> podría tener el siguiente contenido:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const express = require('express');
+var router = express.Router();
+
+const client = require('../db/cassandra');
+
+//Endpoint GET "/?user_id=:user_id&amp;song_id=:song_id"
+router.get('/', async function(req, res, next) {
+    // Se conecta a Cassandra
+    client.connect()
+
+    // Construir la consulta a partir de los parámetros de la URL. Los parámetros son opcionales
+    let query = 'SELECT * FROM music.last_played_songs_by_user';
+    let params = [];
+    if (req.query.user_id &amp;&amp; req.query.song_id) {
+        query += ' WHERE user_id = ? AND song_id = ?';
+        params = [req.query.user_id, req.query.song_id];
+    } else if (req.query.user_id) {
+        query += ' WHERE user_id = ?';
+        params = [req.query.user_id];
+    } else if (req.query.song_id) {
+        query += ' WHERE song_id = ?';
+        params = [req.query.song_id];
+    }
+
+    // Ejecuta una consulta a Cassandra para obtener las canciones escuchadas por un usuario
+    const songs = await client.execute(query, params);
+
+    // Responde con un JSON que contiene la canción obtenida
+    res.status(200).json({result: 'OK', data: songs.rows});
+}
+);
+
+//Endpoint POST "/"
+router.post('/', async function(req, res, next) {
+    // Se conecta a Cassandra
+    client.connect()
+
+    // Ejecuta una consulta a Cassandra para insertar una canción escuchada por un usuario. La fecha se obtiene del timestamp actual
+    const song = await client.execute('INSERT INTO music.last_played_songs_by_user (user_id, user_name, song_id, song_name, artist_name, cover_url, played_at) VALUES (?, ?, ?, ?, ?, ?, toTimestamp(now()))', [req.body.user_id, req.body.user_name, req.body.song_id, req.body.song_name, req.body.artist_name, req.body.cover_url]);
+
+    // Responde con un JSON que contiene la canción insertada
+    res.status(200).json({result: 'OK', data: song.rows});
+}
+);
+
+module.exports = router;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Una vez creado el archivo <code>lastplayedsongs.js</code>, hay que actualizar el archivo <code>app.js</code> del proyecto para importar el archivo <code>lastplayedsongs.js</code> y definir la ruta <code>/lastplayedsongs</code> para acceder a las operaciones CRUD de la API REST:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">...
+var express = require('express'); <b class="conum">(1)</b>
+....
+
+var lastPlayedSongsRouter = require('./routes/lastplayedsongs'); <b class="conum">(2)</b>
+
+var app = express();
+
+...
+app.use('/lastplayedsongs', lastPlayedSongsRouter); <b class="conum">(3)</b>
+
+....</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Se importa el módulo <code>express</code>.</p>
+</li>
+<li>
+<p>Se importa el archivo <code>lastplayedsongs.js</code> que contiene las rutas de la API REST.</p>
+</li>
+<li>
+<p>Se define la ruta <code>/lastplayedsongs</code> para acceder a las operaciones CRUD de la API REST.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Con estas configuraciones, se puede acceder a las operaciones CRUD de la API REST en la ruta <code>/lastplayedsongs</code> de la aplicación web. Por ejemplo, se podría acceder a la lista de canciones reproducidas recientemente por un usuario en la ruta <code><a href="http://localhost:3000/lastplayedsongs?user_id=123e4567-e89b-12d3-a456-426614174000" class="bare">http://localhost:3000/lastplayedsongs?user_id=123e4567-e89b-12d3-a456-426614174000</a></code> y obtener los datos de las canciones almacenadas en la base de datos de Cassandra.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+    "result": "OK",
+    "data": [
+        {
+            "user_id": "123e4567-e89b-12d3-a456-426614174000",
+            "played_at": "2024-04-12T07:25:56.255Z",
+            "user_name": "John Doe",
+            "artist_name": "The good singers",
+            "cover_url": "https://covers.com/this-is-my-song",
+            "song_id": "123e4567-e89b-12d3-a456-426614174001",
+            "song_name": "This is my song"
+        },
+        {
+            "user_id": "123e4567-e89b-12d3-a456-426614174000",
+            "played_at": "2024-04-12T07:28:56.266Z",
+            "user_name": "John Doe",
+            "artist_name": "The Summers",
+            "cover_url": "https://covers.com/holiday-song",
+            "song_id": "123e4567-e89b-12d3-a456-426614174002",
+            "song_name": "Holiday song"
+        },
+        {
+            "user_id": "123e4567-e89b-12d3-a456-426614174000",
+            "played_at": "2024-04-12T07:29:56.271Z",
+            "user_name": "John Doe",
+            "artist_name": "The Summers",
+            "cover_url": "https://covers.com/holiday-song",
+            "song_id": "123e4567-e89b-12d3-a456-426614174002",
+            "song_name": "Holiday song"
+        }
+    ]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Para obtener más información sobre cómo interactuar con Cassandra desde una aplicación web utilizando Express y la biblioteca <code>cassandra-driver</code>, se recomienda consultar la documentación oficial de Cassandra y explorar los recursos adicionales disponibles en línea.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusiones">12. Conclusiones</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>En este tutorial se ha hecho una introducción a Cassandra y al uso de Cassandra Query Language (CQL) para interactuar con la base de datos. Se ha visto cómo se pueden crear keyspaces, tablas, claves primarias, colecciones, UDT, índices secundarios y vistas materializadas en Cassandra. También se ha presentado un ejemplo de base de datos para una aplicación de música en streaming y se ha mostrado cómo se podrían utilizar las operaciones de CQL para gestionar los datos de los usuarios y las canciones reproducidas recientemente.</p>
+</div>
+<div class="paragraph">
+<p>CQL proporciona una sintaxis sencilla y familiar para realizar operaciones de lectura y escritura en Cassandra, lo que facilita la transición de los desarrolladores de bases de datos relacionales a Cassandra. Con CQL, los desarrolladores pueden crear y gestionar bases de datos distribuidas y altamente escalables en Cassandra de forma eficiente y efectiva.</p>
+</div>
+<div class="paragraph">
+<p>Para obtener más información sobre CQL y Cassandra, se recomienda consultar la documentación oficial de Cassandra y explorar los recursos adicionales disponibles en línea.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2024-04-12 09:34:32 +0200
+</div>
+</div>
+</body>
+</html>
