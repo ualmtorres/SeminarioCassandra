@@ -41,6 +41,11 @@ COLOCA A CONTINUACION LOS OBJETIVOS
 * Explorar casos de uso y ejemplos de aplicaciones que se benefician de las capacidades de escalabilidad y tolerancia a fallos de Cassandra.
 * Crear una API REST utilizando Cassandra como base de datos para una aplicación web.
 
+[TIP]
+====
+Disponible el https://github.com/ualmtorres/cassandra-music-rest-api.git[repositorio de GitHub] con el código fuente de la API REST desarrollada en este tutorial.
+====
+
 // NO CAMBIAR!! (Entrar en modo numerado de apartados)
 :numbered: 
 
@@ -446,7 +451,7 @@ Para instalar Cassandra con Docker, se puede utilizar la imagen oficial de Cassa
 
 - https://www.instaclustr.com/blog/running-apache-cassandra-single-and-multi-node-clusters-on-docker-with-docker-compose/[Tutorial de instalación con Docker Compose]
 - https://gist.github.com/ualmtorres/ca414f89b11765a651e32f9f48b08d42[Script de instalación con Docker para un solo nodo]
-- https://$$$[Repositorio de GitHub para un clúster de varios nodos con Docker Compose]
+- https://github.com/ualmtorres/CassandraDocker.git[Repositorio de GitHub para un clúster de varios nodos con Docker Compose]
 
 .Configuración de Cassandra
 ****
