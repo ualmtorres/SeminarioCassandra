@@ -12,8 +12,8 @@ Codificación, idioma, tabla de contenidos, tipo de documento
 ////
 Nombre y título del trabajo
 ////
-# Cassandra - Bases de datos a gran escala
-Máster en Tecnonlogías y Aplicaciones en Ingeniería Informática. Universidad de Almería
+# Introducción a Cassandra
+Bases de datos a gran escala - Máster en Tecnonlogías y Aplicaciones en Ingeniería Informática. Universidad de Almería
 Manuel Torres <mtorres@ual.es>
 
 
@@ -28,7 +28,7 @@ image::images/di.png[]
 ////
 COLOCA A CONTINUACION EL RESUMEN
 ////
-Cassandra es una base de datos distribuida y escalable que ofrece alta disponibilidad y tolerancia a fallos. Desarrollada inicialmente por Facebook y donada a la Apache Software Foundation, se ha convertido en una de las bases de datos NoSQL más populares. Con un modelo de datos flexible y una arquitectura descentralizada, Cassandra permite el escalado horizontal y la replicación de datos en múltiples nodos. Su lenguaje de consulta basado en SQL facilita la interacción con la base de datos. En resumen, Cassandra es una solución robusta para aplicaciones que requieren escalabilidad y confiabilidad en entornos distribuidos.
+Cassandra es una base de datos distribuida y escalable que ofrece alta disponibilidad y tolerancia a fallos. Fue desarrollada inicialmente por Facebook y donada posteriormente a la Apache Software Foundation, convirtiéndose, junto a MongoDB, en una de las bases de datos NoSQL más populares. Con un modelo de datos flexible y una arquitectura descentralizada, Cassandra permite el escalado horizontal y la replicación de datos en múltiples nodos. Su lenguaje de consulta basado en SQL facilita la interacción con la base de datos. En resumen, Cassandra es una solución robusta para aplicaciones que requieren escalabilidad y fiabilidad en entornos distribuidos.
 
 ////
 COLOCA A CONTINUACION LOS OBJETIVOS
@@ -52,7 +52,7 @@ Disponible el https://github.com/ualmtorres/cassandra-music-rest-api.git[reposit
 == Introducción
 Cassandra es una base de datos distribuida y escalable que fue desarrollada inicialmente por Facebook en 2008 y posteriormente donada a la Apache Software Foundation en 2009. Desde entonces, ha experimentado un crecimiento significativo y se ha convertido en una de las bases de datos NoSQL más populares para aplicaciones que requieren escalabilidad y alta disponibilidad. Como características principales destacan:
 
-* **Modelo de datos:** Cassandra utiliza un modelo de datos orientado a filas con características de almacén de columnas anchas (wide column store), lo que permite una gran flexibilidad en la estructura de los datos. Por ejemplo, puedes tener columnas diferentes para cada fila, lo que es útil para modelos de datos dinámicos como los perfiles de usuario.
+* **Modelo de datos:** Cassandra utiliza un modelo de datos orientado a filas con características de almacén de columnas anchas (wide column store), lo que permite una gran flexibilidad en la estructura de los datos. Por ejemplo, puedes tener columnas diferentes para cada fila, lo que es útil para modelos de datos dinámicos, como los perfiles de usuario.
 
 * **Distribuida y descentralizada:** Cassandra está diseñada para ser distribuida y descentralizada. Utiliza un modelo de arquitectura peer-to-peer en el que no hay un nodo maestro centralizado. Esto permite una alta disponibilidad y escalabilidad horizontal.
 
@@ -68,11 +68,13 @@ Cabe destacar también las analogías con otros sistemas distribuidos como Amazo
 
 * **Google Bigtable:** El modelo de datos de Cassandra se asemeja al modelo de datos de Google Bigtable, que es una base de datos NoSQL diseñada para manejar grandes volúmenes de datos estructurados, como los datos de los motores de búsqueda.
 
-* **Lenguaje de consulta basado en SQL:** Aunque Cassandra utiliza su propio lenguaje de consulta llamado CQL (Cassandra Query Language), está influenciado por SQL y proporciona una sintaxis familiar para interactuar con la base de datos. Por ejemplo, puedes ejecutar consultas como esta para recuperar datos de una tabla:
+* **Lenguaje de consulta basado en SQL:** Aunque Cassandra utiliza su propio lenguaje de consulta llamado CQL (Cassandra Query Language), está influenciado por SQL y proporciona una sintaxis familiar para interactuar con la base de datos. Por ejemplo, en Cassandra puedes ejecutar consultas como esta para recuperar datos de una tabla como si se tratase de una base de datos relacional:
 
 [source,sql]
 ----
-SELECT * FROM last_played_songs_by_user WHERE song_id = 123e4567-e89b-12d3-a456-426614174001;
+SELECT  * 
+FROM    last_played_songs_by_user 
+WHERE   song_id = 123e4567-e89b-12d3-a456-426614174001;
 ----
 
 == Una base de datos orientada a filas (Wide column store)
@@ -85,7 +87,7 @@ Cassandra utiliza un modelo de datos orientado a filas con características de a
 
 * **Clave de ordenación**: Los valores de fila en Cassandra se almacenan según una clave de ordenación para mejorar el rendimiento de las consultas. Esto permite recuperar eficientemente filas en función de un rango de valores de clave de ordenación. Por ejemplo, si tenemos una tabla de tweets y utilizamos el `timestamp` como clave de ordenación, podemos recuperar todos los tweets de un usuario en un rango de tiempo específico de manera eficiente.
 
-A continuación se muestra un ejemplo de cómo se podría definir una tabla en Cassandra utilizando estos conceptos:
+A continuación se muestra un ejemplo de cómo se podrían definir tablas en Cassandra utilizando estos conceptos:
 
 [source,sql]
 ----
@@ -96,9 +98,33 @@ CREATE TABLE IF NOT EXISTS user_data (
    address TEXT,
    PRIMARY KEY (user_id)
 );
+
+CREATE TABLE IF NOT EXISTS tweets (
+   user_id UUID,
+   tweet_id UUID,
+   tweet_content TEXT,
+   timestamp TIMESTAMP,
+   PRIMARY KEY (user_id, timestamp, tweet_id)
+);
 ----
 
-En este ejemplo, `user_id` se utiliza como la clave de particionado para distribuir las filas de usuarios por los nodos del clúster. La tabla puede tener columnas adicionales como `username`, `email` y `address`, pero no se necesita espacio de almacenamiento para estas columnas si no se utilizan en todas las filas.
+En el primer ejemplo, `user_id` se utiliza como la clave de particionado para distribuir las filas de usuarios por los nodos del clúster. La tabla puede tener columnas adicionales como `username`, `email` y `address`, pero no se necesita espacio de almacenamiento para estas columnas si no se utilizan en todas las filas.
+
+En el segundo ejemplo, `user_id` se utiliza como la clave de particionado y `timestamp` como la clave de ordenación para distribuir y ordenar eficientemente los tweets de los usuarios en el clúster. Esto permite recuperar rápidamente los tweets de un usuario en un rango de tiempo específico. El `tweet_id` se utiliza como una columna adicional para identificar de forma única cada tweet, y se añade al final de la clave primaria para garantizar la unicidad de las filas.
+
+Tal y como veremos más adelante, la clave primaria de la tabla `tweets` se puede definir de otra manera en la que sea más explícito las columnas que son clave de particionado y de ordenación. A continuación se muestra un ejemplo de la tabla `tweets` con una clave primaria más explícita:
+
+[source,sql]
+----
+CREATE TABLE IF NOT EXISTS tweets (
+   user_id UUID,
+   timestamp TIMESTAMP,
+   tweet_id UUID,
+   tweet_content TEXT,
+   PRIMARY KEY ((user_id,) timestamp, tweet_id)
+   WITH CLUSTERING ORDER BY (timestamp DESC)
+);
+----
 
 == Descentralización en Cassandra: Arquitectura Peer-to-Peer
 
@@ -156,14 +182,18 @@ En Cassandra, la arquitectura se basa en la distribución de datos en nodos, que
 * **Nodo:** En Cassandra, un nodo es el lugar donde se almacenan los datos. Cada nodo puede ser responsable de almacenar una parte del conjunto de datos completo. Los nodos se distribuyen en varios data centers para mejorar la disponibilidad y la tolerancia a fallos.
 
 * **Data Center (Anillo):** Un data center en Cassandra es un conjunto de nodos que están físicamente ubicados juntos. Los nodos dentro del mismo data center se comunican entre sí de manera eficiente, lo que reduce la latencia y mejora el rendimiento.
++
+image::images/cassandra-ring.png[Anillo de nodos en Cassandra, align="center"]
 
 * **Cluster:** Un clúster en Cassandra es un conjunto de data centers que trabajan juntos para proporcionar una solución de almacenamiento de datos distribuida y altamente disponible. Los clústeres pueden estar compuestos por uno o más data centers.
++
+image::images/cassandra-cluster.png[Cluster de anillos en Cassandra, align="center"]
 
 === Replicación de datos
 
 La replicación de datos en Cassandra se controla mediante el factor de replicación y la estrategia de replicación.
 
-* **Factor de replicación:** El factor de replicación es el número de copias deseadas de cada conjunto de datos. Esto permite que los datos estén replicados en varios nodos para proporcionar redundancia y tolerancia a fallos. Por ejemplo, si tenemos un factor de replicación de 3, cada conjunto de datos se replicará en tres nodos diferentes.
+* **Factor de replicación:** El factor de replicación representa el número de copias deseadas de cada conjunto de datos. Esto permite que los datos estén replicados en varios nodos para proporcionar redundancia y tolerancia a fallos. Por ejemplo, si tenemos un factor de replicación de 3, cada conjunto de datos se replicará en tres nodos diferentes.
 
 * **Estrategia de replicación:** La estrategia de replicación determina dónde colocar las réplicas de los datos en el clúster. Cassandra proporciona varias estrategias de replicación, entre las que se incluyen:
 
@@ -190,7 +220,7 @@ En este ejemplo, estamos creando un keyspace llamado `my_keyspace` con la estrat
 Los data centers no se crean de forma explícita en Cassandra. Realmente, son el resultado de la configuración de cada nodo del cluster, que especifica el data center al que pertenece. Por ejemplo, si configuramos tres nodos con el nombre de data center `dc1`, Cassandra considerará que esos nodos pertenecen al mismo data center. Por tanto, se ha creado el data center `dc1` de forma implícita.
 ====
 
-== Consistencia dventual en Cassandra: Factor de replicación y Nivel de consistencia
+== Consistencia eventual en Cassandra: Factor de replicación y Nivel de consistencia
 
 En Cassandra, la consistencia eventual es un modelo de consistencia que prioriza la disponibilidad y la tolerancia a fallos sobre la consistencia estricta en todo momento. Esto significa que las actualizaciones se propagan a todas las réplicas de los datos, pero puede llevar un tiempo hasta que todas las réplicas estén completamente actualizadas y consistentes.
 
@@ -198,7 +228,7 @@ En Cassandra, la consistencia eventual es un modelo de consistencia que prioriza
 
 Al hablar de la consistencia eventual en Cassandra, es importante tener en cuenta los siguientes aspectos:
 
-* **Factor de replicación:** El factor de replicación en Cassandra es el número de nodos a los que se propagan los datos. Esto permite que los datos estén replicados en varios nodos para proporcionar redundancia y tolerancia a fallos. Por ejemplo, si tenemos un factor de replicación de 3, cada conjunto de datos se replicará en tres nodos diferentes.
+* **Factor de replicación:** Como se ha comentado anteriormente, el factor de replicación en Cassandra representa el número de nodos a los que se propagan los datos. Esto permite que los datos estén replicados en varios nodos para proporcionar redundancia y tolerancia a fallos. Por ejemplo, si tenemos un factor de replicación de 3, cada conjunto de datos se replicará en tres nodos diferentes.
 
 * **Actualizaciones asíncronas:** En la consistencia eventual, las actualizaciones se propagan a todas las réplicas de los datos de manera asíncrona. Esto significa que una vez que se realiza una actualización en un nodo, esta se propaga a otras réplicas en segundo plano, pero no se espera una confirmación inmediata de todas las réplicas.
 
@@ -209,6 +239,23 @@ Al hablar de la consistencia eventual en Cassandra, es importante tener en cuent
 En Cassandra, el nivel de consistencia es especificado por cada operación de cliente y controla cuántas réplicas deben dar un ACK en escrituras o devolver datos en lecturas. El nivel de consistencia es un compromiso entre consistencia y rendimiento, y permite a los desarrolladores ajustar el equilibrio según las necesidades de su aplicación.
 
 Por ejemplo, un nivel de consistencia de ONE requiere que solo una réplica responda a una operación de escritura o lectura para considerarla exitosa, lo que ofrece un rendimiento más alto pero menor consistencia. Por otro lado, un nivel de consistencia de QUORUM requiere que la mayoría de las réplicas respondan, lo que ofrece una mayor consistencia pero a costa de un rendimiento ligeramente más bajo.
+
+[NOTE]
+====
+El nivel de consistencia predeterminado en Cassandra es ONE, lo que significa que solo se requiere una réplica para que una operación sea considerada exitosa. No obstante, este nivel de consistencia puede no ser suficiente en entornos donde se requiere una mayor consistencia en los datos.
+====
+
+El nivel de consistencia se puede especificar en cada operación de cliente en Cassandra para controlar el grado de consistencia deseado. Se puede establecer a nivel de consulta o a nivel de sesión, lo que permite a los desarrolladores ajustar la consistencia según las necesidades de su aplicación.
+
+A continuación se muestra un ejemplo en CQL de cómo se podría especificar el nivel de consistencia en una operación de lectura en Cassandra utilizando la cláusula `CONSISTENCY`. Después, se restablece el nivel de consistencia a su valor predeterminado:
+
+[source,sql]
+----
+CONSISTENCY QUORUM;
+SELECT * FROM my_table WHERE id = '123';
+CONSISTENCY ONE;
+----
+
 
 A continuación se muestra un ejemplo en Java de cómo se podría especificar el nivel de consistencia en una operación de lectura en Cassandra:
 
@@ -237,6 +284,10 @@ En el contexto de las bases de datos distribuidas a gran escala, el Teorema de C
 
 * Si priorizamos **Disponibilidad** y **Tolerancia a la partición**, es posible que tengamos que sacrificar la consistencia en ciertas circunstancias. Esto significa que los datos pueden no estar inmediatamente consistentes en todos los nodos durante una partición de red, pero el sistema seguirá respondiendo a las solicitudes de lectura y escritura.
 
+La figura siguiente ilustra los compromisos en un sistema distribuido según el Teorema de CAP.
+
+image::images/teorema-cap.png[caption="Compromisos en un sistema distribuido según el Teorema de CAP", align="center"]
+
 Para ilustrar estos compromisos, consideremos un ejemplo en el contexto de una base de datos distribuida:
 
 Supongamos que tenemos una base de datos distribuida que prioriza la **Disponibilidad** y la **Tolerancia a la partición** sobre la **Consistencia**. Durante una partición de red, un cliente podría escribir datos en un nodo y luego intentar leerlos desde otro nodo. Debido a la partición, los nodos pueden no estar inmediatamente sincronizados, lo que podría resultar en lecturas inconsistentes hasta que se resuelva la partición.
@@ -245,7 +296,7 @@ Por ejemplo, en el contexto de una red social, durante una partición de red, un
 
 En el contexto de una plataforma de streaming, durante una partición de red, un usuario podría comenzar a ver un programa en un dispositivo y luego intentar continuar viéndolo en otro dispositivo. Debido a la partición, los servidores de la plataforma pueden no estar inmediatamente sincronizados, lo que podría resultar en la pérdida de progreso o la falta de sincronización en la reproducción entre dispositivos hasta que se resuelva la partición. En este caso, se prioriza la disponibilidad y la tolerancia a la partición para garantizar que los usuarios puedan seguir viendo contenido sin interrupciones, aunque la experiencia de usuario pueda verse afectada temporalmente por la falta de consistencia en los datos entre los servidores.
 
-Estos son sólo unos ejemplos de cómo el Teorema de CAP influye en el diseño y el funcionamiento de las bases de datos distribuidas a gran escala. Al comprender estos compromisos, los ingenieros pueden tomar decisiones informadas sobre la arquitectura y la configuración de sus sistemas distribuidos.
+Estos son sólo unos ejemplos de cómo el Teorema de CAP influye en el diseño y el funcionamiento de las bases de datos distribuidas a gran escala. Al comprender estos compromisos, los equipos de desarrollo pueden tomar decisiones informadas sobre la arquitectura y la configuración de sus sistemas distribuidos.
 
 == Modelado de datos en Cassandra
 
@@ -272,29 +323,38 @@ CREATE TABLE IF NOT EXISTS user_posts (
    post_id UUID,
    post_title TEXT,
    post_content TEXT,
-   author_name TEXT STATIC,
+   author_name TEXT STATIC, <1>
    created_at TIMESTAMP,
    PRIMARY KEY (user_id, created_at, post_id)
 );
 ----
+<1> Columna estática para el nombre del autor
 
 En este ejemplo, `user_id` se utiliza como clave de partición para agrupar los posts de cada usuario juntos en los nodos del clúster. La columna `created_at` se utiliza como columna de clustering para ordenar los posts cronológicamente dentro de cada partición de usuario. La columna `author_name` es una columna estática que almacena el nombre del autor, ya que este valor es el mismo para todos los posts de un usuario específico.
 
 === Componentes de Cassandra: De Abajo hacia Arriba
 
-En Cassandra, varios componentes trabajan juntos para proporcionar una base de datos distribuida y altamente disponible. Desde el nivel más bajo hasta el más alto, estos componentes incluyen:
+A continución se describen los componentes de Cassandra, desde el nivel más bajo hasta el más alto, que trabajan juntos para proporcionar una base de datos distribuida y altamente disponible.
 
 * **Columna**: En Cassandra, una columna es un par clave-valor que almacena datos. Cada columna tiene un nombre único y un valor asociado. Las columnas se agrupan en filas y se organizan en particiones dentro de las tablas.
 
 * **Fila**: Una fila en Cassandra es un conjunto de columnas referenciadas por una clave primaria. Cada fila tiene una clave primaria única que la identifica dentro de su tabla. Las filas pueden contener un número variable de columnas y se almacenan juntas en particiones en el mismo nodo.
 
 * **Partición**: Una partición en Cassandra es un conjunto de filas relacionadas que se almacenan juntas en el mismo nodo del clúster. Las particiones se definen por su clave de partición, que determina en qué nodo se almacenan los datos. Las particiones permiten una distribución eficiente de los datos y facilitan la escalabilidad y el rendimiento de lectura y escritura.
++
+La figura siguiente ilustra cómo se organizan las columnas en filas y particiones en Cassandra.
++
+image::images/particion.png[Organización de columnas en filas y particiones en Cassandra, align="center"]
++
+La figura siguiente muestra un ejemplo concreto de cómo se podrían organizar las columnas en filas y particiones en una tabla de Cassandra.
++
+image::images/particion-ejemplo.png[Ejemplo de organización de columnas en filas y particiones en Cassandra, align="center"]
 
 * **Tabla**: Una tabla en Cassandra es un conjunto de filas organizadas en particiones. Cada tabla tiene un esquema predefinido que define la estructura de las filas y las columnas que puede contener. Las tablas se utilizan para organizar y almacenar datos de manera estructurada en el clúster de Cassandra.
 
 * **Keyspace**: Un keyspace en Cassandra es un conjunto de tablas que comparten las mismas opciones de replicación y se almacenan en los mismos nodos del clúster. Cada keyspace proporciona un espacio de nombres lógico para organizar y gestionar las tablas relacionadas en el clúster.
 
-* **Cluster (Anillo)**: Un cluster en Cassandra es un conjunto de keyspaces distribuidos por varios nodos del clúster. La asignación de datos a los nodos se realiza siguiendo un anillo de particiones, que distribuye las particiones de datos de manera equitativa entre los nodos del clúster. Los clusters en Cassandra proporcionan escalabilidad horizontal y alta disponibilidad al distribuir y replicar datos en múltiples nodos.
+* **Cluster**: Un cluster en Cassandra es un conjunto de keyspaces distribuidos por varios nodos del clúster. La asignación de datos a los nodos se realiza siguiendo un anillo de particiones, que distribuye las particiones de datos de manera equitativa entre los nodos del clúster. Los clusters en Cassandra proporcionan escalabilidad horizontal y alta disponibilidad al distribuir y replicar datos en múltiples nodos.
 
 A continuación se muestra un ejemplo de cómo se podrían interactuar con los componentes de Cassandra desde una aplicación:
 
@@ -303,40 +363,28 @@ A continuación se muestra un ejemplo de cómo se podrían interactuar con los c
 3. El nodo de Cassandra recibe la solicitud y almacena los datos en la partición correspondiente dentro de la tabla especificada en el keyspace.
 4. Una vez completada la escritura, el nodo de Cassandra envía una respuesta al cliente, confirmando la operación.
 
+[NOTE]
+====
+En función del factor de replicación establecido, los datos se replicarían en varios nodos del clúster para proporcionar redundancia y tolerancia a fallos.
+====
+
 Este es solo un ejemplo de cómo interactúan los diferentes componentes de Cassandra para proporcionar una base de datos distribuida y altamente disponible. Cada componente desempeña un papel crucial en el funcionamiento del sistema en su conjunto.
 
-=== Naturaleza permanente de las claves primarias en Cassandra
-
-En Cassandra, las claves primarias desempeñan un papel fundamental en la distribución y organización de los datos en el clúster. Además, tienen una naturaleza permanente que afecta a cómo se realizan las operaciones de escritura en la base de datos.
-
-==== Importancia de las claves primarias
+=== Inmutabilidad de las claves primarias en Cassandra
 
 Las claves primarias determinan cómo se distribuyen los datos en el disco y cómo se accede a ellos en el clúster. Están compuestas por una clave de partición y, opcionalmente, columnas de clustering, que permiten una distribución eficiente de los datos y facilitan la escalabilidad horizontal.
 
-==== Naturaleza permanente de las claves primarias
+En Cassandra, las claves primarias desempeñan un papel fundamental en la distribución y organización de los datos en el clúster. Además, tienen una naturaleza permanente que afecta a cómo se realizan las operaciones de escritura en la base de datos.
 
-Las claves primarias en Cassandra son inmutables y no se pueden modificar una vez que se han definido. Esto significa que una vez que se ha asignado una clave primaria a una fila, no se puede cambiar. Esta naturaleza permanente tiene varias implicaciones importantes:
-
-* **Upsert:** En Cassandra, las operaciones de escritura siguen una naturaleza upsert, lo que significa que tanto las operaciones de actualización (UPDATE) como las de inserción (INSERT) pueden ser tratadas como la misma operación. En otras palabras:
-  - Si se realiza un UPDATE en una fila que no existe, se trata como un INSERT y se crea una nueva fila con la clave primaria especificada.
-  - Si se realiza un INSERT en una fila que ya existe, se trata como un UPDATE y se sobrescriben los datos existentes con los nuevos valores.
+Las claves primarias en Cassandra son inmutables y no se pueden modificar una vez que se han definido. Esto significa que una vez que se ha asignado una clave primaria a una fila, no se puede cambiar. Esta naturaleza permanente tiene varias implicaciones importantes. Cabe destacar que en Cassandra las operaciones de escritura siguen una naturaleza **upsert**, lo que significa que tanto las operaciones de actualización (`UPDATE`) como las de inserción (`INSERT`) pueden ser tratadas como la misma operación. En otras palabras:
+  - Si se realiza un `UPDATE` en una fila que no existe, se trata como un `INSERT` y se crea una nueva fila con la clave primaria especificada.
+  - Si se realiza un `INSERT` en una fila que ya existe, se trata como un `UPDATE` y se sobrescriben los datos existentes con los nuevos valores.
 
 Esta naturaleza permanente de las claves primarias garantiza la consistencia y la integridad de los datos en el clúster, al tiempo que simplifica la lógica de escritura para los desarrolladores.
 
-A continuación se muestra un ejemplo de cómo se podrían utilizar las claves primarias en una aplicación:
-
-1. Un cliente envía una solicitud de escritura con una clave primaria específica y datos asociados.
-2. El nodo de Cassandra determina la ubicación de los datos en el clúster en función de la clave de partición.
-3. Se realiza una operación de upsert en el nodo correspondiente, tratando la operación como un INSERT o UPDATE según sea necesario.
-4. Una vez completada la operación, el nodo de Cassandra devuelve una respuesta al cliente, confirmando la operación y la ubicación de los datos en el clúster.
-
 === Timestamps y TTL en Cassandra
 
-En Cassandra, los Timestamps y TTL (Time To Live) son características importantes que afectan la forma en que se manejan los datos y su duración en la base de datos.
-
-==== Timestamps (Marcas de tiempo)
-
-Al insertar o modificar datos en una columna en Cassandra, se añade automáticamente un timestamp que indica cuándo se realizó la operación. Estos timestamps se utilizan para resolver conflictos de escritura y determinar el orden de las operaciones en caso de actualizaciones concurrentes. 
+En Cassandra, los Timestamps y TTL (Time To Live) son características importantes que afectan la forma en que se manejan los datos y su duración en la base de datos. Al insertar o modificar datos en una columna en Cassandra, se añade automáticamente un timestamp que indica cuándo se realizó la operación. Estos timestamps se utilizan para resolver conflictos de escritura y determinar el orden de las operaciones en caso de actualizaciones concurrentes. 
 
 El enfoque comúnmente utilizado para resolver conflictos de escritura es el "last write wins", lo que significa que cuando hay dos escrituras concurrentes en la misma fila, se conserva la escritura con el timestamp más reciente.
 
@@ -370,8 +418,9 @@ A continuación se muestra un ejemplo de cómo se podrían utilizar los keyspace
 1. Para una aplicación de comercio electrónico, se podría crear un keyspace llamado "ecommerce" que contiene todas las tablas relacionadas con el catálogo de productos, pedidos, usuarios, etc.
 2. Cada tabla dentro del keyspace "ecommerce" estaría diseñada para satisfacer las necesidades específicas de esa área de la aplicación.
 3. El keyspace "ecommerce" se configuraría para replicar los datos en varios data centers del clúster, garantizando la disponibilidad y la tolerancia a fallos para la aplicación.
+4. Las tablas se definen y gestionan dentro del keyspace "ecommerce", proporcionando un espacio de nombres lógico para organizar y gestionar los datos relacionados con el comercio electrónico.
 
-Este sería el código de creación de un keyspace en Cassandra:
+Este sería el código de creación en Cassandra de un keyspace y una tabla para una aplicación de comercio electrónico:
 
 [source,sql]
 ----
@@ -380,9 +429,20 @@ WITH replication = {
   'class': 'SimpleStrategy',
   'replication_factor': 3
 };
+
+CREATE TABLE IF NOT EXISTS ecommerce.product_reviews (
+  product_id UUID,
+  product_name TEXT STATIC,
+  review_id UUID,
+  user_id UUID,
+  rating INT,
+  review TEXT,
+  review_date TIMESTAMP,
+  PRIMARY KEY (product_id, review_date, review_id)
+);
 ----
 
-Este código crea un keyspace llamado "ecommerce" si aún no existe. Utiliza la estrategia de replicación SimpleStrategy, que es adecuada para entornos de desarrollo o pequeños clusters. En este caso, se establece el factor de replicación en 3, lo que significa que cada partición se replica en tres nodos diferentes del clúster para garantizar la disponibilidad y la tolerancia a fallos.
+Este código crea un keyspace llamado "ecommerce" si aún no existe. Utiliza la estrategia de replicación SimpleStrategy, que es adecuada para entornos de desarrollo o pequeños clusters. En este caso, se establece el factor de replicación en 3, lo que significa que cada partición se replica en tres nodos diferentes del clúster para garantizar la disponibilidad y la tolerancia a fallos. A continuación, se crea una tabla llamada "product_reviews" dentro del keyspace "ecommerce" para almacenar las reseñas de productos.
 
 Podríamos crear uno con una estrategia de replicación NetworkTopologyStrategy, que permite definir factores de replicación diferentes para cada data center en el clúster:
 
@@ -418,7 +478,7 @@ A continuación se muestra un ejemplo de cómo se podría realizar el modelado b
 3. Se utilizan claves compuestas y columnas de clustering para agrupar y ordenar los datos de manera eficiente para las consultas más comunes.
 4. Se realizan pruebas de rendimiento para ajustar el esquema según sea necesario y garantizar un rendimiento óptimo en producción.
 
-== Consideraciones de diseño en Cassandra
+=== Consideraciones de diseño en Cassandra
 
 En Cassandra, el diseño de la base de datos se enfrenta a desafíos únicos debido a su naturaleza distribuida y orientada a filas. A continuación, se presentan algunas consideraciones clave a tener en cuenta al diseñar un esquema de base de datos en Cassandra:
 
@@ -434,9 +494,170 @@ En Cassandra, el diseño de la base de datos se enfrenta a desafíos únicos deb
 
 Estas consideraciones son fundamentales para diseñar un esquema de base de datos eficiente y escalable en Cassandra, aprovechando las características y limitaciones de esta tecnología distribuida.
 
+=== Modelado de datos en Cassandra: Ejemplo
+
+En https://www.oreilly.com/library/view/cassandra-the-definitive/9781098115159/[Cassandra: The Definitive Guide. O’Reilly] se presenta un ejemplo de modelado de datos en Cassandra para una aplicación de reservas de hoteles. En este ejemplo, se describen las consultas más comunes que se realizarán en la aplicación y se diseña un esquema de tabla eficiente para satisfacer estas consultas.
+
+La figura siguiente ilustra el modelo conceptual de la aplicación de reservas de hoteles.
+
+image::images/hoteles-ER.png[Modelo conceptual de la aplicación de reservas de hoteles, align="center"]
+
+En este modelo, se identifican las siguientes consultas comunes:
+
+* Q1: Buscar hoteles cerca de un punto de interés.
+* Q2: Obtener información sobre un hotel específico.
+* Q3: Obtener puntos de interés cercanos a un hotel.
+* Q4: Buscar habitaciones disponibles en un hotel por fecha.
+* Q5: Obtener las características de una habitación en un hotel.
+* Q6: Buscar reservas por número de reserva.
+* Q7: Buscar reservas por hotel y fecha.
+* Q8: Obtener reservas por nombre de cliente.
+* Q9: Buscar clientes por ID.
+
+La figura siguiente ilustra el flujo de consultas de la aplicación. La línea discontinua hacer referencia de una funcionalidad externa, no implementada en Cassandra. Posiblemente, se realizaría a través del sistema operacional de reservas.
+
+image::images/hoteles-flujo.png[Flujo de consultas de la aplicación de reservas de hoteles, align="center"]
+
+.Notación Chebotko para el modelado de datos en Cassandra
+****
+La notación Chebotko es una técnica de modelado de datos que se utiliza para diseñar esquemas de tablas eficientes en Cassandra. Cada tabla se representa como un conjunto de columnas y se identifican las claves primarias y las claves de partición para optimizar el rendimiento de las consultas. Las tablas se crearán de esta forma:
+
+* Tablas para entidades
+    * Nombre: Entidad (p.e. `hotels, guests`)
+    * Clave primaria: Clave de partición que actúa como parámetro de búsqueda (p.e. `hotel_id, guest_id`)
+* Tablas para consultas con parámetros de búsqueda
+    * Nombre: entidad_by_param (p.e. `hotels_by_poi, reservations_by_hotel_date`)
+    * Clave primaria: Clave de partición y columnas de clustering para optimizar las consultas (p.e. `poi_id, hotel_id`)
+
+La figura siguiente ilustra un ejemplo de la notación Chebotko.
+
+image::images/chebotko.png[Notación Chebotko, align="center"]
+****
+
+En el ejemplo de la aplicación de reservas de hoteles, se diseñan las tablas siguiendo la notación Chebotko para optimizar el rendimiento de las consultas. La figura siguiente muestra el flujo de consultas y las tablas diseñadas para satisfacer estas consultas usando la notación Chebotko.
+
+image::images/hoteles-flujo-chebotko.png[Flujo de consultas y tablas diseñadas para la aplicación de reservas de hoteles, align="center"]
+
+A continuación, hay que organizar las tablas en keyspaces. La figura siguiente muestra cómo se podrían organizar las tablas en keyspaces para la aplicación de reservas de hoteles.
+
+image::images/hoteles-keyspaces.png[Organización de tablas en keyspaces para la aplicación de reservas de hoteles, align="center"]
+
+A continuación se muestra el código CQL que define las tablas para la aplicación de reservas de hoteles. El código completo se puede encontrar en https://gist.github.com/ualmtorres/1fc380ab4ea702e941eca63ce3057a42[este enlace].
+
+[source,sql]
+----
+CREATE KEYSPACE hotel WITH replication =
+  {'class': 'SimpleStrategy', 'replication_factor' : 3};
+
+CREATE TYPE hotel.address (
+  street text,
+  city text,
+  state_or_province text,
+  postal_code text,
+  country text );
+
+CREATE TABLE hotel.hotels_by_poi (
+  poi_name text,
+  hotel_id text,
+  name text,
+  phone text,
+  address frozen<address>,
+  PRIMARY KEY ((poi_name), hotel_id) )
+  WITH comment = 'Q1. Find hotels near given poi'
+  AND CLUSTERING ORDER BY (hotel_id ASC) ;
+
+CREATE TABLE hotel.hotels (
+  id text PRIMARY KEY,
+  name text,
+  phone text,
+  address frozen<address>,
+  pois set<text> )
+  WITH comment = 'Q2. Find information about a hotel';
+
+CREATE TABLE hotel.pois_by_hotel (
+  poi_name text,
+  hotel_id text,
+  description text,
+  PRIMARY KEY ((hotel_id), poi_name) )
+  WITH comment = 'Q3. Find pois near a hotel';
+
+CREATE TABLE hotel.available_rooms_by_hotel_date (
+  hotel_id text,
+  date date,
+  room_number smallint,
+  is_available boolean,
+  PRIMARY KEY ((hotel_id), date, room_number) )
+  WITH comment = 'Q4. Find available rooms by hotel date';
+
+CREATE TABLE hotel.amenities_by_room (
+  hotel_id text,
+  room_number smallint,
+  amenity_name text,
+  description text,
+  PRIMARY KEY ((hotel_id, room_number), amenity_name) )
+  WITH comment = 'Q5. Find amenities for a room';
+
+CREATE KEYSPACE reservation WITH replication = {'class':
+  'SimpleStrategy', 'replication_factor' : 3};
+
+CREATE TYPE reservation.address (
+  street text,
+  city text,
+  state_or_province text,
+  postal_code text,
+  country text );
+
+CREATE TABLE reservation.reservations_by_confirmation (
+  confirm_number text,
+  hotel_id text,
+  start_date date,
+  end_date date,
+  room_number smallint,
+  guest_id uuid,
+  PRIMARY KEY (confirm_number) )
+  WITH comment = 'Q6. Find reservations by confirmation number';
+
+CREATE TABLE reservation.reservations_by_hotel_date (
+  hotel_id text,
+  start_date date,
+  end_date date,
+  room_number smallint,
+  confirm_number text,
+  guest_id uuid,
+  PRIMARY KEY ((hotel_id, start_date), room_number) )
+  WITH comment = 'Q7. Find reservations by hotel and date';
+
+CREATE TABLE reservation.reservations_by_guest (
+  guest_last_name text,
+  hotel_id text,
+  start_date date,
+  end_date date,
+  room_number smallint,
+  confirm_number text,
+  guest_id uuid,
+  PRIMARY KEY ((guest_last_name), hotel_id) )
+  WITH comment = 'Q8. Find reservations by guest name';
+
+CREATE TABLE reservation.guests (
+  guest_id uuid PRIMARY KEY,
+  first_name text,
+  last_name text,
+  title text,
+  emails set<text>,
+  phone_numbers list<text>,
+  addresses map<text,
+  frozen<address>>,
+  confirm_number text )
+  WITH comment = 'Q9. Find guest by ID';
+----
+
+Este enfoque de modelado de datos basado en consultas y la notación Chebotko permite diseñar esquemas de tablas eficientes en Cassandra que optimizan el rendimiento de las consultas y actualizaciones. Al tener en cuenta las consultas más comunes y los flujos de trabajo de la aplicación, se pueden diseñar tablas que satisfagan eficientemente las necesidades de la aplicación y proporcionen un rendimiento óptimo en producción.
+
+Por lo tanto, el modelado de datos en Cassandra es un proceso iterativo que implica identificar las consultas más comunes, diseñar tablas eficientes para satisfacer estas consultas y realizar pruebas de rendimiento para ajustar el esquema según sea necesario. Al seguir este enfoque, se pueden diseñar esquemas de tablas eficientes que aprovechen las características de escalabilidad y distribución de Cassandra.
+
 == Instalación y configuración de Cassandra
 
-Cassandra es una base de datos distribuida altamente escalable y tolerante a fallos que se utiliza para almacenar grandes volúmenes de datos en clústeres de servidores. En esta sección, se describirá cómo instalar y configurar Cassandra en un entorno local para comenzar a trabajar con esta base de datos NoSQL. Daremos las referencias para una instalación nativa de Cassandra en sistemas Linux y con contenedores Docker.
+Cassandra es una base de datos distribuida altamente escalable y tolerante a fallos que se utiliza para almacenar grandes volúmenes de datos en clústeres de servidores. En esta sección, se describirá cómo instalar y configurar Cassandra en un entorno local para comenzar a trabajar con esta base de datos NoSQL. Daremos las referencias para una instalación nativa de Cassandra en sistemas Linux y una instalación con contenedores Docker.
 
 === Instalación Nativa de Cassandra en Linux
 
@@ -447,7 +668,7 @@ Para instalar Cassandra en un sistema Linux, se recomiendan los siguientes tutor
 
 === Instalación de Cassandra con Docker
 
-Para instalar Cassandra con Docker, se puede utilizar la imagen oficial de Cassandra en Docker Hub. A continuación se muestra un tutorial para instalar y ejecutar Cassandra en un cluster de varios nodos con Docker Compose. También se proporciona un enlace a un script de instalación con Docker para un solo nodo y un repositorio de GitHub con para la configuración de un clúster Cassandra de varios nodos con Docker Compose:
+Para instalar Cassandra con Docker, se puede utilizar la imagen oficial de Cassandra en Docker Hub. A continuación se proporciona un enlace a un tutorial para instalar y ejecutar Cassandra en un cluster de varios nodos con Docker Compose. También se proporcionan enlaces a un script de instalación con Docker para un solo nodo y a un repositorio de GitHub con para la configuración de un clúster Cassandra de varios nodos con Docker Compose:
 
 - https://www.instaclustr.com/blog/running-apache-cassandra-single-and-multi-node-clusters-on-docker-with-docker-compose/[Tutorial de instalación con Docker Compose]
 - https://gist.github.com/ualmtorres/ca414f89b11765a651e32f9f48b08d42[Script de instalación con Docker para un solo nodo]
@@ -456,6 +677,7 @@ Para instalar Cassandra con Docker, se puede utilizar la imagen oficial de Cassa
 .Configuración de Cassandra
 ****
 La configuración de Cassandra se realiza a través del archivo de configuración `cassandra.yaml`, que se encuentra en el directorio de instalación de Cassandra (p.e. `/var/lib/cassandra`). Este archivo contiene las opciones de configuración para el nodo de Cassandra, como la dirección IP, el puerto, la estrategia de replicación, el factor de replicación, etc. Nosotros configuraremos los valores de:
+
 - `cluster_name` para especificar el nombre del clúster.
 - `seed_provider.parameters.seeds` para especificar los nodos semilla del clúster.
 - `user_defined_functions_enabled` para habilitar las funciones definidas por el usuario.
@@ -483,7 +705,7 @@ UN  172.19.0.3  363.82 KiB  128     100.0%            80f3fbfc-b950-4dd5-bc47-d8
 +
 [source,shell]
 ----
-  # nodetool info
+# nodetool info
 ID                     : 761d1d08-0a54-443a-896c-070c222374ee
 Gossip active          : true
 Native Transport active: true
@@ -534,6 +756,17 @@ A continuación se muestran ejemplos de cómo se podrían realizar estas operaci
 ====
 Es importante destacar que en la operación de inserción hay que añadir todos los campos de la tabla, aunque no se vayan a utilizar.
 ====
+
+.Inserción de datos en JSON
+****
+Cassandra permite insertar datos en formato JSON utilizando la función `JSON` en CQL. Esto facilita la inserción de datos complejos y anidados en una sola operación. A continuación se muestra un ejemplo de cómo se podría insertar un objeto JSON en una tabla de Cassandra:
++
+[source,sql]
+----
+INSERT INTO my_keyspace.my_table JSON '{"id": "123", "name": "Alice", "age": 30}';
+----
+****
+
 - `UPDATE my_keyspace.my_table SET name = 'Bob' WHERE id = '123';` para modificar el valor de la columna `name` en una fila existente.
 - `DELETE FROM my_keyspace.my_table WHERE id = '123';` para eliminar una fila de una tabla donde el `id` es igual a `123.
 
@@ -548,6 +781,8 @@ Los keyspaces en Cassandra se utilizan para organizar y gestionar las tablas rel
 
 Algunas de las operaciones que se pueden realizar sobre keyspaces en CQL incluyen:
 
+* Crear un nuevo keyspace con una estrategia de replicación `SimpleStrategy` y un factor de replicación de 3:
++
 [source,sql]
 ----
 CREATE KEYSPACE my_keyspace 
@@ -556,21 +791,23 @@ WITH replication = {
     'replication_factor': 3
     };
 ----
-para crear un nuevo keyspace con una estrategia de replicación SimpleStrategy y un factor de replicación de 3.
 
-
+* Mostrar la información sobre un keyspace, incluyendo las tablas asociadas y las opciones de replicación:
++
 [source,sql]
 ----
 DESCRIBE KEYSPACE my_keyspace;
 ----
-para mostrar la información sobre un keyspace, incluyendo las tablas asociadas y las opciones de replicación.
 
+* Cambiar al keyspace especificado y realizar operaciones en las tablas asociadas:
++
 [source,sql]
 ----
 USE my_keyspace;
 ----
-para cambiar al keyspace especificado y realizar operaciones en las tablas asociadas.
 
+* Modificar las opciones de replicación de un keyspace:
++
 [source,sql]
 ----
 ALTER KEYSPACE my_keyspace 
@@ -580,14 +817,13 @@ WITH replication = {
     'datacenter2': 2
     };
 ----
-para modificar las opciones de replicación de un keyspace.
 
-
+* Eliminar un keyspace y todas las tablas asociadas:
++
 [source,sql]
 ----
 DROP KEYSPACE my_keyspace;
 ----
-para eliminar un keyspace y todas las tablas asociadas.
 
 === Tablas en CQL
 
@@ -642,7 +878,7 @@ DROP TABLE my_keyspace.my_table;
 
 ==== Claves primarias y claves de partición en CQL
 
-En Cassandra, las claves primarias desempeñan un papel fundamental en la distribución y organización de los datos en el clúster. La clave primaria de una tabla se compone de una clave de partición y, opcionalmente, columnas de clustering. La clave de partición determina cómo se distribuyen los datos en el clúster, mientras que las columnas de clustering ordenan las filas dentro de una partición.
+En Cassandra, las claves primarias desempeñan un papel fundamental en la distribución y organización de los datos en el clúster. La clave primaria de una tabla se compone de una clave de partición y, opcionalmente, columnas de clustering. **La clave de partición determina cómo se distribuyen los datos en el clúster, mientras que las columnas de clustering ordenan las filas dentro de una partición.**
 
 Algunos ejemplos de cómo se podrían definir claves primarias en CQL incluyen:
 
@@ -665,16 +901,15 @@ CREATE TABLE my_keyspace.my_table (
     post_id UUID, 
     post_title TEXT, 
     post_content TEXT, 
-    PRIMARY KEY (user_id, post_id)
+    PRIMARY KEY (user_id, post_id) <1>
     );` 
 ----
+<1> Clave primaria compuesta. `user_id` es la clave de partición y `post_id` es la columna de clustering.
 
 El código anterior crea una tabla con una clave primaria compuesta que consta de dos columnas, `user_id` y `post_id`, donde `user_id` se utiliza como clave de partición y `post_id` como columna de clustering. Esta estructura permite agrupar los posts de cada usuario juntos en los nodos del clúster y ordenar los posts dentro de cada partición de usuario.
 
 Para facilitar la distinción entre las columnas de clave de partición y las columnas de clustering, se pueden encerrar las columnas de clave de partición entre paréntesis, dejando fuera a las columnas de clustering. Por ejemplo:
 
-* Crear una tabla con una clave primaria compuesta que consta de dos columnas, `user_id` y `post_id`, donde `user_id` se utiliza como clave de partición y `post_id` como columna de clustering:
-+
 [source,sql]
 ----
 CREATE TABLE my_keyspace.my_table (
@@ -682,9 +917,10 @@ CREATE TABLE my_keyspace.my_table (
     post_id UUID, 
     post_title TEXT, 
     post_content TEXT, 
-    PRIMARY KEY ((user_id), post_id)
+    PRIMARY KEY ((user_id), post_id) <1>
     );
 ----
+<1> Clave primaria compuesta. `user_id` es la clave de partición y `post_id` es la columna de clustering. La clave de partición se encierra entre paréntesis para mayor claridad.
 +
 [NOTE]
 ====
@@ -700,9 +936,11 @@ CREATE TABLE my_keyspace.my_table (
     post_id UUID, 
     post_title TEXT, 
     post_content TEXT, 
-    PRIMARY KEY ((user_id), post_id)
-    ) WITH CLUSTERING ORDER BY (post_id DESC);
+    PRIMARY KEY ((user_id), post_id) <1>
+    ) WITH CLUSTERING ORDER BY (post_id DESC); <2>
 ----
+<1> Clave primaria compuesta. `user_id` es la clave de partición y `post_id` es la columna de clustering.
+<2> Ordenar los posts en orden descendente dentro de cada partición de usuario.
 
 === Colecciones y UDT en CQL
 
@@ -725,7 +963,7 @@ CREATE TABLE my_keyspace.people (
     );
 ----
 
-* Crear una tabla de usuarios que incluya una columna de conjunto de roles para almacenar valores únicos:
+* Crear una tabla de usuarios que incluya una columna de conjunto de roles para almacenar valores únicos.
 +
 [source,sql]
 ----
@@ -735,6 +973,11 @@ CREATE TABLE my_keyspace.users (
     roles SET<TEXT>
     );
 ----
++
+[NOTE]
+====
+Los conjuntos son útiles para almacenar valores únicos.
+====
 
 * Crear una tabla de libros que incluya una columna de mapa de autores para almacenar pares clave-valor:
 +
@@ -763,7 +1006,7 @@ CREATE TYPE my_keyspace.book (
 ----
 
 * Crear una tabla de libros que incluya una columna de tipo UDT para almacenar datos estructurados:
-
++
 [source,sql]
 ----
 CREATE TABLE my_keyspace.books (
@@ -812,6 +1055,11 @@ PRIMARY KEY (column1, column2);
 SELECT * FROM my_keyspace.my_view WHERE column1 = 'value';
 ----
 
+[IMPORTANT]
+====
+Si una tabla tiene una clave primaria compuesta, no se pueden realizar consultas sobre una parte de la clave primaria sin un índice secundario. Por ejemplo, si la clave primaria de una tabla es `(user_id, post_id)`, no se pueden realizar consultas sobre `user_id` sin un índice secundario.
+====
+
 .`ALLOW FILTERING`
 ****
 Cassandra no permite realizar consultas sobre columnas que no sean clave sin un índice secundario. Para forzar la recuperación de datos sin un índice secundario, se puede utilizar la cláusula `ALLOW FILTERING` en la consulta. Sin embargo, esto puede tener un impacto negativo en el rendimiento y se debe utilizar con precaución.
@@ -832,6 +1080,11 @@ También, de forma análoga a SQL, se pueden utilizar las cláusulas `GROUP BY` 
 * `SELECT department, AVG(salary) FROM employees GROUP BY department;` para calcular la media de los salarios por departamento.
 * `SELECT department, AVG(salary) FROM employees GROUP BY department HAVING AVG(salary) > 50000;` para calcular la media de los salarios por departamento y filtrar los resultados por salarios superiores a 50.000.
 
+[IMPORTANT]
+====
+Recordar que cualquier consulta en Cassandra sólo puede filtrar por las columnas de clave primaria o las columnas indexadas. Las consultas que filtran por columnas no clave sin un índice secundario pueden requerir la cláusula `ALLOW FILTERING`, lo que puede tener un impacto negativo en el rendimiento. Por tanto, es importante diseñar el esquema de la base de datos teniendo en cuenta las consultas más comunes y críticas para la aplicación. Esto incluye la creación de índices secundarios y vistas materializadas según sea necesario para acelerar las consultas y mejorar el rendimiento.
+====
+
 == Ejemplo de base de datos para una aplicación de música en streaming
 
 Para ilustrar cómo se podrían utilizar las características de CQL en una aplicación real, consideremos un ejemplo de base de datos para una aplicación de música. En esta aplicación, se podrían utilizar keyspaces, tablas, claves primarias, colecciones y UDT para almacenar y gestionar los datos de los artistas, álbumes, canciones, listas de reproducción, usuarios, canciones reproducidas recientemente, etc. Aquí nos centraremos únicamente en una versión simplififcada de la tabla de usuarios y de las canciones reproducidas recientemente.
@@ -839,13 +1092,13 @@ Para ilustrar cómo se podrían utilizar las características de CQL en una apli
 La tabla de usuarios podría tener la siguiente estructura:
 
 * `users`:
-  - `id` (UUID): Identificador único del usuario (clave primaria).
-  - `name` (TEXT): Nombre del usuario.
-  - `email` (TEXT): Correo electrónico del usuario.
+  - `id (UUID)`: Identificador único del usuario (clave primaria).
+  - `name (TEXT)`: Nombre del usuario.
+  - `email (TEXT)`: Correo electrónico del usuario.
 * `last_played_songs`:
-  - `user_id` (UUID): Identificador único del usuario (clave de partición).
-  - `song_id` (UUID): Identificador único de la canción (columna de clustering).
-  - `played_at` (TIMESTAMP): Marca de tiempo de la última reproducción de la canción.
+  - `user_id (UUID)`: Identificador único del usuario (clave de partición).
+  - `song_id (UUID)`: Identificador único de la canción (columna de clustering).
+  - `played_at (TIMESTAMP)`: Marca de tiempo de la última reproducción de la canción.
 
 === Creación del keyspace
 
@@ -925,6 +1178,11 @@ INSERT INTO music.users (id, name, email)
 VALUES (123e4567-e89b-12d3-a456-426614174000, 'John', 'john@acme.com');
 ----
 
+[NOTE]
+====
+Recordar que en la operación de inserción hay que especificar los nombres de las columnas.
+====
+
 Para actualizar el usuario con id `123e4567-e89b-12d3-a456-426614174000`, usaríamos:
 [source, sql]
 ----
@@ -974,6 +1232,11 @@ CREATE TABLE IF NOT EXISTS music.last_played_songs_by_user (
     PRIMARY KEY ((user_id), played_at)
 );
 ----
+
+[NOTE]
+====
+Cada partición representa un usuario y las canciones escuchadas recientemente por ese usuario se ordenan por fecha de reproducción. Si una canción se reproduce varias veces, se almacenarán varias filas con la misma clave de partición y diferentes valores de `played_at`. Esto permite recuperar las canciones escuchadas recientemente por un usuario en orden cronológico, lo que suele corresponderse con la funcionalidad de "últimas canciones escuchadas" o "historial" en una aplicación de música en streaming.
+====
 
 Para mostrar información sobre la tabla `last_played_songs_by_user`, usaríamos:
 [source, sql]
@@ -1038,7 +1301,7 @@ WHERE   song_id = 123e4567-e89b-12d3-a456-426614174003
 ALLOW FILTERING;
 ----
 
-Para crear un índice en la columna `song_id` de la tabla `music.last_played_songs_by_user`, ejecutaríamos:
+Si se espera realizar consultas frecuentes sobre la columna `song_id`, se podría añadir un índice secundario en esta columna para acelerar las consultas. Para crear un índice en la columna `song_id` de la tabla `music.last_played_songs_by_user`, ejecutaríamos:
 [source, sql]
 ----
 CREATE INDEX IF NOT EXISTS song_id_index
@@ -1098,6 +1361,12 @@ Se podría haber eliminado todo directamente con `DROP KEYSPACE music;`, pero he
 
 Para interactuar con Cassandra desde una aplicación web, se puede utilizar una API REST para realizar operaciones de lectura y escritura en la base de datos. En este ejemplo, se utilizará https://expressjs.com/[Express] para crear una API REST sobre un cluster de Cassandra y que permita realizar operaciones CRUD en la base de datos.
 
+En aplicaciones Node.js, se puede utilizar el paquete https://www.npmjs.com/package/cassandra-driver[`cassandra-driver`] para conectarse a un clúster de Cassandra y ejecutar consultas CQL. El paquete `cassandra-driver` proporciona un driver para interactuar con Cassandra y realizar operaciones CRUD en la base de datos. En este ejemplo, se creará una API REST en Express para interactuar con Cassandra y realizar operaciones CRUD en las tablas de usuarios y canciones reproducidas recientemente.
+
+[NOTE]
+====
+El código de la API REST desarrollado en este ejemplo es un ejemplo simplificado con fines educativos. En un entorno de producción, se recomienda implementar medidas de seguridad adicionales, como la validación de datos de entrada, la autenticación y la autorización de usuarios, y la protección contra ataques de seguridad. El código está disponible en el siguiente https://github.com/ualmtorres/cassandra-music-rest-api.git[repositorio de GitHub].
+====
 
 === Creación del proyecto base
 
@@ -1112,9 +1381,9 @@ npm install cassandra-driver
 
 === Configuración de la conexión a Cassandra
 
-En primer lugar, se creará un archivo `db/cassandra.js` en la carpeta `db` del proyecto para configurar la conexión a Cassandra y exportar el cliente de Cassandra para su uso en otras partes de la aplicación. En este archivo se configurará la conexión a Cassandra y se creará un cliente de Cassandra para interactuar con la base de datos. La ventaja de crear un módulo de conexión a Cassandra es que se puede reutilizar en toda la aplicación para realizar operaciones CRUD en la base de datos.
+En primer lugar, se creará un archivo `cassandra.js` en la carpeta `db` del proyecto para configurar la conexión a Cassandra y exportar el cliente de Cassandra para su uso en otras partes de la aplicación. En este archivo se configurará la conexión a Cassandra y se creará un cliente de Cassandra para interactuar con la base de datos. La ventaja de crear un módulo de conexión a Cassandra es que se puede reutilizar en toda la aplicación para realizar operaciones CRUD en la base de datos.
 
-El archivo `cassandra.js` podría tener el siguiente contenido:
+El archivo https://github.com/ualmtorres/cassandra-music-rest-api/blob/main/db/cassandra.js[`db/cassandra.js`] podría tener el siguiente contenido:
 
 [source, javascript]
 ----
@@ -1134,9 +1403,9 @@ La conexión se cerrará automáticamente al finalizar cada operación de la API
 
 === Creación de los endpoints de gestión de usuarios
 
-A continuación, se creará un archivo `routes/users.js` en la carpeta `routes` del proyecto para definir las rutas de la API REST para interactuar con la base de datos de Cassandra. En este archivo se incluirán las operaciones CRUD para los usuarios y las canciones reproducidas recientemente.
+A continuación, se creará un archivo https://github.com/ualmtorres/cassandra-music-rest-api/blob/main/routes/users.js[`users.js`] en la carpeta `routes` del proyecto para definir las rutas de la API REST para interactuar con la base de datos de Cassandra. En este archivo se incluirán las operaciones CRUD para los usuarios y las canciones reproducidas recientemente.
 
-El archivo `users.js` podría tener el siguiente contenido:
+El archivo `routes/users.js` podría tener el siguiente contenido:
 
 [source, javascript]
 ----
@@ -1217,7 +1486,7 @@ En este archivo, se importa el módulo `express` y se define un enrutador `route
 
 === Configuración de las rutas
 
-En el archivo `app.js` del proyecto, se importará el archivo `music.js` y se definirá la ruta `/music` para acceder a las operaciones CRUD de la API REST:
+En el archivo https://github.com/ualmtorres/cassandra-music-rest-api/blob/main/app.js[`app.js`] del proyecto, se importará el archivo `music.js` y se definirá la ruta `/music` para acceder a las operaciones CRUD de la API REST:
 
 [source, javascript]
 ----
@@ -1261,11 +1530,11 @@ Con estas configuraciones, se puede acceder a las operaciones CRUD de la API RES
 
 === Creación de los endpoints de consulta de canciones reproducidas recientemente
 
-Para consultar las canciones reproducidas recientemente por un usuario, se podría crear un archivo `routes/lastplayedsongs.js` en la carpeta `routes` del proyecto para definir las rutas de la API REST para interactuar con la tabla `last_played_songs_by_user` de Cassandra. En este archivo se incluirán las operaciones CRUD para las canciones reproducidas recientemente.
+Para consultar las canciones reproducidas recientemente por un usuario, se podría crear un archivo `lastplayedsongs.js` en la carpeta `routes` del proyecto para definir las rutas de la API REST para interactuar con la tabla `last_played_songs_by_user` de Cassandra. En este archivo se incluirán las operaciones CRUD para las canciones reproducidas recientemente.
 
 Para recuperar las canciones tendremos un único endpoint que aceptará dos parámetros (`user_id` y `song_id`). Si se proporciona el `user_id`, se devolverán las canciones reproducidas recientemente por ese usuario. Si se proporciona el `song_id`, se devolverán los usuarios que han reproducido recientemente esa canción.
 
-El archivo `lastplayedsongs.js` podría tener el siguiente contenido:
+El archivo https://github.com/ualmtorres/cassandra-music-rest-api/blob/main/routes/lastplayedsongs.js[`routes/lastplayedsongs.js`] podría tener el siguiente contenido:
 
 [source, javascript]
 ----
@@ -1317,7 +1586,9 @@ router.post('/', async function(req, res, next) {
 module.exports = router;
 ----
 
-Una vez creado el archivo `lastplayedsongs.js`, hay que actualizar el archivo `app.js` del proyecto para importar el archivo `lastplayedsongs.js` y definir la ruta `/lastplayedsongs` para acceder a las operaciones CRUD de la API REST:
+Una vez creado el archivo `routes/lastplayedsongs.js`, hay que:
+* actualizar el archivo `app.js` del proyecto para importar el archivo `routes/lastplayedsongs.js`.
+* definir la ruta `/lastplayedsongs` para acceder a las operaciones CRUD de la API REST.
 
 [source, javascript]
 ----
@@ -1376,12 +1647,12 @@ Con estas configuraciones, se puede acceder a las operaciones CRUD de la API RES
 }
 ----
 
-Para obtener más información sobre cómo interactuar con Cassandra desde una aplicación web utilizando Express y la biblioteca `cassandra-driver`, se recomienda consultar la documentación oficial de Cassandra y explorar los recursos adicionales disponibles en línea.
+Para obtener más información sobre cómo interactuar con Cassandra desde una aplicación web utilizando Express y `cassandra-driver`, se recomienda consultar la documentación oficial de Cassandra y explorar los recursos adicionales disponibles en línea.
 
 == Conclusiones
 
-En este tutorial se ha hecho una introducción a Cassandra y al uso de Cassandra Query Language (CQL) para interactuar con la base de datos. Se ha visto cómo se pueden crear keyspaces, tablas, claves primarias, colecciones, UDT, índices secundarios y vistas materializadas en Cassandra. También se ha presentado un ejemplo de base de datos para una aplicación de música en streaming y se ha mostrado cómo se podrían utilizar las operaciones de CQL para gestionar los datos de los usuarios y las canciones reproducidas recientemente.
+En este tutorial se ha hecho una introducción a Cassandra y al uso de Cassandra Query Language (CQL) para interactuar con la base de datos. Se ha visto cómo se pueden crear keyspaces, tablas, claves primarias, colecciones, UDT, índices secundarios y vistas materializadas en Cassandra. También se ha presentado un ejemplo de base de datos para una aplicación de música en streaming, se ha mostrado cómo se podrían utilizar las operaciones de CQL para gestionar los datos de los usuarios y las canciones reproducidas recientemente  y se ha creado una API REST en Express para interactuar con Cassandra y realizar operaciones CRUD en la base de datos.
 
 CQL proporciona una sintaxis sencilla y familiar para realizar operaciones de lectura y escritura en Cassandra, lo que facilita la transición de los desarrolladores de bases de datos relacionales a Cassandra. Con CQL, los desarrolladores pueden crear y gestionar bases de datos distribuidas y altamente escalables en Cassandra de forma eficiente y efectiva.
 
-Para obtener más información sobre CQL y Cassandra, se recomienda consultar la documentación oficial de Cassandra y explorar los recursos adicionales disponibles en línea.
+Para obtener más información sobre CQL, Cassandra y `cassandra-driver`, se recomienda consultar la documentación oficial de Cassandra y explorar los recursos adicionales disponibles en línea.
